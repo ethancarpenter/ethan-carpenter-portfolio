@@ -1,0 +1,123 @@
+/* In-scene HUD: grinder progress, brew-counter slot, and the toss hint. */
+
+.brewCounter {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(36, 22, 16, 0.72);
+  color: var(--c-cream);
+  border: 2px solid var(--c-coffee-900);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(2px);
+}
+
+.brewCounterLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.brewCounterValue {
+  font-family: var(--font-pixel);
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+
+.progress {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  width: min(260px, 46%);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(244, 233, 216, 0.9);
+  border: 2px solid var(--c-coffee-800);
+  border-radius: var(--radius-sm);
+}
+
+.progressLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.progressTitle {
+  font-family: var(--font-pixel);
+  font-size: 0.6875rem;
+  color: var(--color-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bar {
+  width: 100%;
+  height: 12px;
+  background: var(--c-cream-300);
+  border: 2px solid var(--c-coffee-800);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  width: 0%;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--c-coffee-600),
+    var(--c-coffee-600) 6px,
+    var(--c-coffee-500) 6px,
+    var(--c-coffee-500) 12px
+  );
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-family: var(--font-pixel);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  color: var(--c-cream);
+  background: rgba(201, 111, 74, 0.92);
+  border: 2px solid var(--c-coffee-900);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pixel-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hint {
+    animation: hintFloat 3s ease-in-out infinite;
+  }
+}
+
+@keyframes hintFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@media (max-width: 720px) {
+  .progress {
+    width: calc(100% - var(--space-6));
+  }
+
+  .hint {
+    bottom: 12%;
+  }
+}

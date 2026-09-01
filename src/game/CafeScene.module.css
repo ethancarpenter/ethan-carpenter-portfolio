@@ -1,0 +1,65 @@
+.scene {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 19 / 9;
+  max-height: 74dvh;
+  margin-inline: auto;
+  overflow: hidden;
+  border: var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--c-wall);
+  box-shadow: var(--shadow-soft);
+  /* Establish a stacking context so layer z-index values stay local. */
+  isolation: isolate;
+}
+
+/* Every layer fills the scene box; z-index comes from tokens. */
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.layerBackground {
+  z-index: var(--z-scene-background);
+  pointer-events: none;
+}
+
+.layerObjects {
+  z-index: var(--z-scene-objects);
+  /* Container ignores pointer events; individual objects opt back in. */
+  pointer-events: none;
+}
+
+.layerPhysics {
+  z-index: var(--z-scene-physics);
+  /* Matter.js canvas mounts here. */
+  pointer-events: none;
+}
+
+.layerEffects {
+  z-index: var(--z-scene-effects);
+  /* Particles / steam / score popups render here. */
+  pointer-events: none;
+}
+
+.layerUi {
+  z-index: var(--z-scene-ui);
+  pointer-events: none;
+}
+
+.layerUi > * {
+  pointer-events: auto;
+}
+
+@media (max-width: 720px) {
+  .scene {
+    aspect-ratio: 4 / 5;
+    max-height: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .scene {
+    aspect-ratio: 3 / 4;
+  }
+}

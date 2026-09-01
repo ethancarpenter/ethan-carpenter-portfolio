@@ -1,0 +1,114 @@
+/*
+ * Design tokens for the cozy retro pixel-art cafe.
+ * Single source of truth for palette, type, spacing, and the scene's
+ * layer stacking order. Components should reference these, not raw values.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ---- Palette: coffee, cream, wood, amber light, muted accents ---- */
+  --c-espresso: #241610;
+  --c-coffee-900: #2b1d14;
+  --c-coffee-800: #3a2718;
+  --c-coffee-700: #4b3421;
+  --c-coffee-600: #6f4e37;
+  --c-coffee-500: #8b5e3c;
+  --c-coffee-400: #a9764f;
+
+  --c-cream: #f4e9d8;
+  --c-cream-200: #ede0c8;
+  --c-cream-300: #e3d2b3;
+  --c-paper: #faf3e6;
+
+  --c-wall: #e7d3b3;
+  --c-wall-shadow: #d8bf98;
+
+  --c-wood-900: #37261731;
+  --c-wood-800: #3d2b1a;
+  --c-wood-600: #5c3f27;
+  --c-wood-500: #7a5230;
+  --c-wood-400: #9a6b41;
+
+  --c-amber: #e8a33d;
+  --c-amber-glow: #f6c874;
+  --c-terracotta: #c96f4a;
+  --c-sage: #8a9a68;
+  --c-sage-dark: #6d7c4f;
+
+  /* ---- Semantic roles ---- */
+  --color-bg: var(--c-cream);
+  --color-bg-alt: var(--c-cream-200);
+  --color-surface: var(--c-paper);
+  --color-border: var(--c-cream-300);
+  --color-text: var(--c-coffee-900);
+  --color-text-muted: #6b5641;
+  --color-heading: var(--c-coffee-800);
+  --color-accent: var(--c-terracotta);
+  --color-link: var(--c-coffee-600);
+  --color-link-hover: var(--c-terracotta);
+  --color-focus: #2f6f6a;
+
+  /* ---- Typography ----
+   * --font-sans  : the professional portfolio/UI layer (name, headings, body,
+   *                nav, buttons, section content).
+   * --font-pixel : reserved for in-world cafe/game elements only (grinder
+   *                labels, toss prompt, brew counter, future score popups).
+   */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-pixel: 'Silkscreen', 'Courier New', ui-monospace, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: clamp(2.5rem, 6vw, 4rem);
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.6;
+
+  /* ---- Spacing scale ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+  --space-10: 4rem;
+  --space-12: 6rem;
+
+  /* ---- Radius & borders (kept small for a blocky, pixel feel) ---- */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --border-strong: 2px solid var(--c-coffee-800);
+
+  /* ---- Hard-edged "pixel" shadows: offset, no blur ---- */
+  --shadow-pixel: 4px 4px 0 0 var(--c-wood-900);
+  --shadow-pixel-sm: 2px 2px 0 0 var(--c-wood-900);
+  --shadow-soft: 0 8px 24px -12px rgba(43, 29, 20, 0.45);
+
+  /* ---- Layout ---- */
+  --page-max: 1180px;
+  --content-max: 68ch;
+  --header-height: 64px;
+
+  /* ---- Scene layer stacking order (see game/CafeScene) ---- */
+  --z-scene-background: 1;
+  --z-scene-objects: 2;
+  --z-scene-physics: 3;
+  --z-scene-effects: 4;
+  --z-scene-ui: 5;
+  --z-header: 50;
+  --z-skip-link: 100;
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-med: 240ms;
+}

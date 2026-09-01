@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <rect width="16" height="16" fill="#2b1d14" />
+  <!-- steam -->
+  <rect x="6" y="2" width="1" height="2" fill="#e8d5b5" />
+  <rect x="9" y="1" width="1" height="2" fill="#e8d5b5" />
+  <!-- cup body -->
+  <rect x="3" y="6" width="9" height="7" fill="#f4e9d8" />
+  <rect x="4" y="7" width="7" height="2" fill="#6f4e37" />
+  <!-- handle -->
+  <rect x="12" y="7" width="2" height="1" fill="#f4e9d8" />
+  <rect x="13" y="8" width="1" height="2" fill="#f4e9d8" />
+  <rect x="12" y="10" width="2" height="1" fill="#f4e9d8" />
+  <!-- saucer -->
+  <rect x="2" y="13" width="11" height="1" fill="#c96f4a" />
+</svg>

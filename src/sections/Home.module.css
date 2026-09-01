@@ -1,0 +1,41 @@
+.home {
+  padding-block: var(--space-6) var(--space-10);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.container {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+/*
+ * Mobile-first: intro stacked above the scene (HeroIntro's slot uses order: -1).
+ * The hero is transparent to pointer input; only .sceneWrap and the intro
+ * panel/chip take events, so the cafe play area is never covered by an
+ * invisible box.
+ */
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.sceneWrap {
+  pointer-events: auto;
+}
+
+.sceneCaption {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: var(--content-max);
+}
+
+@media (min-width: 901px) {
+  /* Scene fills the row; the intro floats over its top-left (see HeroIntro). */
+  .hero {
+    min-height: 30rem;
+  }
+}

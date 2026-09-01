@@ -1,0 +1,381 @@
+/*
+ * Cafe scene art, drawn with CSS per element so pixel-art PNGs can replace
+ * pieces individually. Everything here is decorative (aria-hidden containers).
+ */
+
+/* ============================ Background layer ============================ */
+
+.background {
+  background:
+    linear-gradient(180deg, #efdcbd 0%, var(--c-wall) 45%, var(--c-wall-shadow) 100%);
+}
+
+/* Warm amber wash from the window / lights. */
+.background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 45% at 78% 8%, rgba(246, 200, 116, 0.55), transparent 70%),
+    radial-gradient(45% 40% at 12% 4%, rgba(246, 200, 116, 0.3), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+.window {
+  position: absolute;
+  top: 8%;
+  right: 6%;
+  width: 22%;
+  height: 40%;
+  background: linear-gradient(180deg, #bfe0e6 0%, #dcecd9 60%, #f3e7c9 100%);
+  border: 4px solid var(--c-wood-600);
+  box-shadow: var(--shadow-pixel);
+}
+
+.window::before,
+.window::after {
+  content: '';
+  position: absolute;
+  background: var(--c-wood-600);
+}
+
+.window::before {
+  inset: 0 50% 0 auto;
+  width: 4px;
+}
+
+.window::after {
+  inset: 50% 0 auto 0;
+  height: 4px;
+}
+
+.shelf {
+  position: absolute;
+  left: 5%;
+  width: 34%;
+  height: 8px;
+  background: var(--c-wood-500);
+  box-shadow: var(--shadow-pixel-sm);
+}
+
+.shelfTop {
+  top: 14%;
+}
+
+.shelfMid {
+  top: 30%;
+}
+
+/* Little jars / books sitting on the shelves. */
+.shelfItems {
+  position: absolute;
+  left: 6%;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 44px;
+}
+
+.shelfItemsTop {
+  top: calc(14% - 44px);
+}
+
+.shelfItemsMid {
+  top: calc(30% - 40px);
+}
+
+.jar {
+  width: 22px;
+  height: 34px;
+  background: var(--c-coffee-500);
+  border: 2px solid var(--c-coffee-800);
+}
+
+.jar:nth-child(2n) {
+  height: 40px;
+  background: var(--c-sage-dark);
+}
+
+.book {
+  width: 12px;
+  height: 40px;
+  background: var(--c-terracotta);
+  border: 2px solid var(--c-coffee-800);
+}
+
+.book:nth-child(3n) {
+  background: var(--c-sage);
+  height: 34px;
+}
+
+.plant {
+  position: absolute;
+  left: 30%;
+  top: calc(30% - 58px);
+  width: 26px;
+  height: 58px;
+}
+
+.plantPot {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 24px;
+  background: var(--c-terracotta);
+  border: 2px solid var(--c-coffee-800);
+}
+
+.plantLeaves {
+  position: absolute;
+  inset: 0 0 18px 0;
+  background:
+    radial-gradient(circle at 30% 70%, var(--c-sage) 40%, transparent 42%),
+    radial-gradient(circle at 70% 60%, var(--c-sage-dark) 40%, transparent 42%),
+    radial-gradient(circle at 50% 30%, var(--c-sage) 45%, transparent 47%);
+}
+
+/* Hanging pendant light over the counter. */
+.pendant {
+  position: absolute;
+  top: 0;
+  left: 46%;
+  width: 4px;
+  height: 16%;
+  background: var(--c-coffee-800);
+}
+
+.pendantShade {
+  position: absolute;
+  bottom: -14px;
+  left: -18px;
+  width: 40px;
+  height: 20px;
+  background: var(--c-coffee-700);
+  border: 2px solid var(--c-coffee-900);
+  border-radius: 0 0 20px 20px;
+}
+
+.pendantGlow {
+  position: absolute;
+  bottom: -40px;
+  left: -34px;
+  width: 72px;
+  height: 60px;
+  background: radial-gradient(circle at 50% 0%, var(--c-amber-glow), transparent 70%);
+  opacity: 0.7;
+}
+
+/* ============================= Objects layer ============================= */
+
+.counter {
+  position: absolute;
+  inset: var(--counter-top, 62%) 0 0 0;
+  background:
+    linear-gradient(180deg, var(--c-wood-500) 0%, var(--c-wood-600) 18%, var(--c-wood-800) 100%);
+  border-top: 4px solid var(--c-wood-400);
+}
+
+.counter::before {
+  /* front lip highlight */
+  content: '';
+  position: absolute;
+  inset: 8px 0 auto 0;
+  height: 3px;
+  background: rgba(246, 200, 116, 0.25);
+}
+
+/* Shared wrapper for a positioned object. */
+.object {
+  position: absolute;
+  /* left / top / width set inline from sceneConfig anchors */
+}
+
+/* ---- Bean bowl ---- */
+.beanBowl {
+  aspect-ratio: 2 / 1;
+  translate: 0 -60%;
+}
+
+.beanBowlDish {
+  position: absolute;
+  inset: 35% 0 0 0;
+  background: var(--c-coffee-400);
+  border: 3px solid var(--c-coffee-800);
+  border-radius: 0 0 40% 40% / 0 0 80% 80%;
+}
+
+.beanPile {
+  position: absolute;
+  inset: 0 8% 30% 8%;
+  background:
+    radial-gradient(6px 8px at 20% 80%, var(--c-coffee-900) 60%, transparent 62%),
+    radial-gradient(6px 8px at 45% 70%, var(--c-coffee-800) 60%, transparent 62%),
+    radial-gradient(6px 8px at 68% 82%, var(--c-coffee-900) 60%, transparent 62%),
+    radial-gradient(6px 8px at 82% 72%, var(--c-coffee-800) 60%, transparent 62%),
+    radial-gradient(6px 8px at 32% 55%, var(--c-coffee-900) 60%, transparent 62%),
+    radial-gradient(6px 8px at 57% 52%, var(--c-coffee-800) 60%, transparent 62%);
+}
+
+/* One bean resting on the rim — the demo bean that shows the toss gesture. */
+.demoBean {
+  position: absolute;
+  left: 78%;
+  top: 26%;
+  width: 11px;
+  height: 14px;
+  background: var(--c-coffee-900);
+  border-radius: 50%;
+}
+
+.demoBean::after {
+  content: '';
+  position: absolute;
+  inset: 3px 5px 3px 4px;
+  background: var(--c-coffee-500);
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .demoBean {
+    animation: beanNudge 4.5s var(--ease-out) infinite;
+  }
+}
+
+@keyframes beanNudge {
+  0%, 78%, 100% { transform: translate(0, 0) rotate(0); }
+  84% { transform: translate(0, -10px) rotate(-12deg); }
+  90% { transform: translate(2px, -4px) rotate(6deg); }
+}
+
+/* ---- Grinder (the throw target) ---- */
+.grinder {
+  aspect-ratio: 3 / 4;
+  translate: 0 -50%;
+}
+
+.grinderBody {
+  position: absolute;
+  inset: 34% 12% 0 12%;
+  background: linear-gradient(180deg, var(--c-coffee-600), var(--c-coffee-800));
+  border: 3px solid var(--c-coffee-900);
+  border-radius: var(--radius-sm) var(--radius-sm) 6px 6px;
+}
+
+.grinderDrawer {
+  position: absolute;
+  inset: auto 22% 6% 22%;
+  height: 22%;
+  background: var(--c-coffee-500);
+  border: 3px solid var(--c-coffee-900);
+}
+
+.grinderDrawer::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  translate: -50% -50%;
+  background: var(--c-coffee-900);
+  border-radius: 50%;
+}
+
+/* The hopper: an obvious open funnel at the top — the throw target. */
+.grinderHopper {
+  position: absolute;
+  inset: 0 24% auto 24%;
+  height: 40%;
+  background: linear-gradient(180deg, var(--c-coffee-700), var(--c-coffee-900));
+  border: 3px solid var(--c-coffee-900);
+  clip-path: polygon(0 0, 100% 0, 72% 100%, 28% 100%);
+}
+
+.grinderHopperMouth {
+  position: absolute;
+  inset: -3px 18% auto 18%;
+  height: 12px;
+  background: var(--c-espresso);
+  border: 3px solid var(--c-coffee-900);
+  border-radius: 50%;
+}
+
+.grinderCrank {
+  position: absolute;
+  top: 8%;
+  left: 68%;
+  width: 34%;
+  height: 5px;
+  background: var(--c-coffee-900);
+}
+
+.grinderCrank::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: -6px;
+  width: 10px;
+  height: 16px;
+  background: var(--c-wood-400);
+  border: 2px solid var(--c-coffee-900);
+}
+
+/* ---- Coffee machine + carafe ---- */
+.machine {
+  aspect-ratio: 1 / 1;
+  translate: 0 -46%;
+}
+
+.machineBody {
+  position: absolute;
+  inset: 6% 4% 18% 4%;
+  background: linear-gradient(180deg, var(--c-coffee-500), var(--c-coffee-700));
+  border: 3px solid var(--c-coffee-900);
+  border-radius: var(--radius-sm);
+}
+
+.machineHead {
+  position: absolute;
+  inset: 0 20% auto 20%;
+  height: 22%;
+  background: var(--c-coffee-800);
+  border: 3px solid var(--c-coffee-900);
+}
+
+.machineWarmer {
+  position: absolute;
+  inset: auto 12% 12% 12%;
+  height: 6px;
+  background: var(--c-amber);
+}
+
+.carafe {
+  aspect-ratio: 3 / 4;
+  translate: 0 -100%;
+}
+
+.carafeGlass {
+  position: absolute;
+  inset: 18% 6% 6% 6%;
+  background: linear-gradient(180deg, rgba(43, 29, 20, 0.25), var(--c-coffee-800) 60%);
+  border: 3px solid var(--c-coffee-900);
+  border-radius: 4px 4px 10px 10px;
+}
+
+.carafeLid {
+  position: absolute;
+  inset: 0 18% auto 18%;
+  height: 20%;
+  background: var(--c-coffee-700);
+  border: 3px solid var(--c-coffee-900);
+}
+
+.carafeHandle {
+  position: absolute;
+  right: -2px;
+  top: 26%;
+  width: 26%;
+  height: 44%;
+  border: 3px solid var(--c-coffee-900);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+}

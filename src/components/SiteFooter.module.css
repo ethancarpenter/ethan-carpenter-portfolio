@@ -1,0 +1,23 @@
+.footer {
+  background: var(--c-coffee-900);
+  color: var(--c-cream-200);
+  border-top: 3px solid var(--c-espresso);
+}
+
+.inner {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.note {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--c-amber-glow);
+}
