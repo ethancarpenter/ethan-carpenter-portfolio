@@ -30,13 +30,18 @@
   line-height: 1;
 }
 
+/*
+ * Grinder fill gauge. left/top come from SceneUiLayer as inline style — it is
+ * centred on the grinder and sits just below the counter line, so it stays
+ * visually tied to the grinder and off the bean bowl / spawn zone and the
+ * throwing path on the left.
+ */
 .progress {
   position: absolute;
-  left: var(--space-3);
-  bottom: var(--space-3);
-  width: min(260px, 46%);
+  transform: translateX(-50%);
+  width: min(190px, 42%);
   padding: var(--space-2) var(--space-3);
-  background: rgba(244, 233, 216, 0.9);
+  background: rgba(244, 233, 216, 0.92);
   border: 2px solid var(--c-coffee-800);
   border-radius: var(--radius-sm);
 }
@@ -114,7 +119,7 @@
 
 @media (max-width: 720px) {
   .progress {
-    width: calc(100% - var(--space-6));
+    width: min(160px, 52%);
   }
 
   .hint {
