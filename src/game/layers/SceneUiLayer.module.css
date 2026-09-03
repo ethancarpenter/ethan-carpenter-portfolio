@@ -1,4 +1,4 @@
-/* In-scene HUD: grinder progress, brew-counter slot, and the toss hint. */
+/* In-scene HUD: brew-counter slot and the contextual hint. */
 
 .brewCounter {
   position: absolute;
@@ -30,65 +30,6 @@
   line-height: 1;
 }
 
-/*
- * Grinder fill gauge. left/top come from SceneUiLayer as inline style — it is
- * centred on the grinder and sits just below the counter line, so it stays
- * visually tied to the grinder and off the bean bowl / spawn zone and the
- * throwing path on the left.
- */
-.progress {
-  position: absolute;
-  /* Read-only in this milestone; don't catch beans headed for the hopper. */
-  pointer-events: none;
-  transform: translateX(-50%);
-  width: min(190px, 42%);
-  padding: var(--space-2) var(--space-3);
-  background: rgba(244, 233, 216, 0.92);
-  border: 2px solid var(--c-coffee-800);
-  border-radius: var(--radius-sm);
-}
-
-.progressLabelRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-family: var(--font-pixel);
-  font-size: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-  margin-bottom: 6px;
-}
-
-.progressTitle {
-  font-family: var(--font-pixel);
-  font-size: 0.6875rem;
-  color: var(--color-heading);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.bar {
-  width: 100%;
-  height: 12px;
-  background: var(--c-cream-300);
-  border: 2px solid var(--c-coffee-800);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.barFill {
-  height: 100%;
-  width: 0%;
-  background: repeating-linear-gradient(
-    45deg,
-    var(--c-coffee-600),
-    var(--c-coffee-600) 6px,
-    var(--c-coffee-500) 6px,
-    var(--c-coffee-500) 12px
-  );
-}
-
 .hint {
   position: absolute;
   left: 50%;
@@ -110,6 +51,20 @@
   box-shadow: var(--shadow-pixel-sm);
 }
 
+.hint[data-tone='progress'] {
+  background: rgba(111, 78, 55, 0.92);
+}
+
+.hint[data-tone='ready'] {
+  background: rgba(138, 154, 104, 0.95);
+  color: var(--c-espresso);
+}
+
+.hint[data-tone='busy'] {
+  background: rgba(232, 163, 61, 0.95);
+  color: var(--c-espresso);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .hint {
     animation: hintFloat 3s ease-in-out infinite;
@@ -122,10 +77,6 @@
 }
 
 @media (max-width: 720px) {
-  .progress {
-    width: min(160px, 52%);
-  }
-
   .hint {
     bottom: 12%;
   }

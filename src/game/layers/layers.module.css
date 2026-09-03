@@ -219,6 +219,40 @@
 .grinder {
   aspect-ratio: 3 / 4;
   translate: 0 -50%;
+  /* `transform` composes on top of `translate` above, so the shake keyframes
+   * can drive transform without disturbing the -50% vertical offset. */
+  transform-origin: 50% 80%;
+}
+
+/*
+ * Grind shake: a tiny pixel judder on the ARTWORK only. The Matter.js hopper
+ * sensor is never moved. Movement is capped near 1.5px so the grinder can't
+ * look disconnected from its collider, and `steps()` keeps it blocky.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .grinder[data-reacting='true'] {
+    animation: grinderShake 260ms steps(2, end) infinite;
+  }
+
+  .grinder[data-busy='true'] {
+    animation: grinderNope 420ms ease-in-out;
+  }
+}
+
+@keyframes grinderShake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-1.5px, 0.5px) rotate(-0.6deg); }
+  50% { transform: translate(1px, -0.5px) rotate(0.5deg); }
+  75% { transform: translate(-0.5px, 1px) rotate(-0.3deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes grinderNope {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 0); }
+  40% { transform: translate(2px, 0); }
+  60% { transform: translate(-1.5px, 0); }
+  80% { transform: translate(1px, 0); }
 }
 
 .grinderBody {

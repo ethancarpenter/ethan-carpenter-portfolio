@@ -102,8 +102,9 @@
   --z-scene-background: 1;
   --z-scene-objects: 2;
   --z-scene-physics: 3;
-  --z-scene-effects: 4;
-  --z-scene-ui: 5;
+  --z-scene-brew: 4;
+  --z-scene-effects: 5;
+  --z-scene-ui: 6;
   --z-header: 50;
   --z-skip-link: 100;
 

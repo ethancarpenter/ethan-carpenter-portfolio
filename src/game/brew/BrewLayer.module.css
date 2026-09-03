@@ -1,0 +1,168 @@
+/*
+ * Filter basket + paper filter under the grinder, the grounds that accumulate
+ * inside it, the falling-ground effect, and the machine slot it snaps into.
+ * The layer container is pass-through (see CafeScene.module.css .layerBrew);
+ * only the basket, and only while it's grabbable, takes pointer input.
+ */
+
+.slot {
+  position: absolute;
+  translate: -50% -50%;
+  aspect-ratio: 1 / 1;
+  border: 2px dashed transparent;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: opacity 160ms var(--ease-out);
+}
+
+.slot[data-active='true'] {
+  opacity: 1;
+  border-color: var(--c-amber-glow);
+  background: rgba(246, 200, 116, 0.16);
+}
+
+.basket {
+  position: absolute;
+  translate: -50% -50%;
+  aspect-ratio: 5 / 4;
+  touch-action: none;
+  transition:
+    left var(--brew-return, 320ms) var(--ease-out),
+    top var(--brew-return, 320ms) var(--ease-out);
+}
+
+.basket[data-dragging='true'] {
+  transition: none;
+  z-index: 1;
+}
+
+.basket[data-stage='ready'],
+.basket[data-stage='carrying'] {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.basket[data-stage='carrying'] {
+  cursor: grabbing;
+}
+
+/* "Ready — pick me up" affordance on the full basket. */
+.basket[data-stage='ready'] .shell {
+  outline: 2px solid var(--c-amber-glow);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .basket[data-stage='ready'] .shell {
+    animation: basketReady 1.5s ease-in-out infinite;
+  }
+}
+
+.shell {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--c-coffee-500), var(--c-coffee-700));
+  border: 3px solid var(--c-coffee-900);
+  border-radius: 2px 2px 6px 6px;
+  clip-path: polygon(6% 0, 94% 0, 82% 100%, 18% 100%);
+  overflow: hidden;
+}
+
+.paper {
+  position: absolute;
+  inset: 7% 12% 0 12%;
+  background: linear-gradient(180deg, var(--c-paper), #e9dcc2);
+  border: 2px solid #d8c39c;
+  border-bottom: none;
+  clip-path: polygon(4% 0, 96% 0, 78% 100%, 22% 100%);
+}
+
+.grounds {
+  position: absolute;
+  left: 17%;
+  right: 17%;
+  bottom: 8%;
+  height: calc(4% + var(--fill, 0) * 64%);
+  background:
+    radial-gradient(5px 4px at 22% 26%, var(--c-espresso) 60%, transparent 62%),
+    radial-gradient(5px 4px at 62% 16%, var(--c-coffee-900) 60%, transparent 62%),
+    radial-gradient(5px 4px at 84% 40%, var(--c-espresso) 60%, transparent 62%),
+    linear-gradient(180deg, var(--c-coffee-800), var(--c-espresso));
+  border-radius: 40% 40% 0 0 / 65% 65% 0 0;
+  transition: height 260ms var(--ease-out);
+}
+
+.basket[data-reduced='true'] .grounds {
+  transition: none;
+}
+
+/* Fall zone reaches above the basket — clusters drop in from the grinder spout. */
+.clusters {
+  position: absolute;
+  inset: -55% 0 12% 0;
+  pointer-events: none;
+}
+
+.cluster {
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 4px;
+  background: var(--c-espresso);
+  border-radius: 1px;
+  opacity: 0;
+  animation-name: clusterFall;
+  animation-timing-function: cubic-bezier(0.4, 0.1, 0.7, 1);
+  animation-fill-mode: forwards;
+}
+
+.count {
+  position: absolute;
+  left: 50%;
+  bottom: -16px;
+  translate: -50% 0;
+  padding: 1px 4px;
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--c-cream);
+  background: rgba(36, 22, 16, 0.78);
+  border: 2px solid var(--c-coffee-900);
+  border-radius: var(--radius-sm);
+}
+
+.count[data-full='true'] {
+  color: var(--c-espresso);
+  background: var(--c-amber-glow);
+}
+
+@keyframes clusterFall {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(150%);
+    opacity: 0.15;
+  }
+}
+
+@keyframes basketReady {
+  0%,
+  100% {
+    outline-color: var(--c-amber-glow);
+  }
+  50% {
+    outline-color: rgba(246, 200, 116, 0.3);
+  }
+}
+
+@media (max-width: 720px) {
+  .count {
+    font-size: 0.5625rem;
+  }
+}

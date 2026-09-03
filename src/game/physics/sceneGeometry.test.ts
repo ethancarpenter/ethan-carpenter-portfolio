@@ -34,6 +34,43 @@ test('resizing rescales the sensor proportionally — no pixel drift', () => {
   assert.ok(Math.abs(big.sensor.width - small.sensor.width * 2) < 1e-6)
 })
 
+test('L: the hopper top-entrance stays centred on the grinderHopper anchor at any size', () => {
+  for (const size of [
+    { width: 800, height: 400 },
+    { width: 1600, height: 900 },
+    { width: 360, height: 640 },
+  ]) {
+    const g = resolveSceneGeometry(desktopLayout, size, PHYSICS)
+    const hopper = desktopLayout.grinderHopper
+    const expectedMid = ((hopper.x + hopper.width / 2) / 100) * size.width
+    const expectedY = (hopper.y / 100) * size.height
+    const mid = (g.hopperEntrance.minX + g.hopperEntrance.maxX) / 2
+    assert.ok(Math.abs(mid - expectedMid) < 1e-6, `${size.width}: mid ${mid} vs ${expectedMid}`)
+    assert.ok(Math.abs(g.hopperEntrance.y - expectedY) < 1e-6)
+    assert.ok(g.hopperEntrance.maxX > g.hopperEntrance.minX)
+  }
+})
+
+test('L: resizing rescales the hopper entrance proportionally — no drift from the art', () => {
+  const small = resolveSceneGeometry(desktopLayout, { width: 800, height: 450 }, PHYSICS)
+  const big = resolveSceneGeometry(desktopLayout, { width: 1600, height: 900 }, PHYSICS)
+  assert.ok(Math.abs(big.hopperEntrance.y - small.hopperEntrance.y * 2) < 1e-6)
+  assert.ok(Math.abs(big.hopperEntrance.minX - small.hopperEntrance.minX * 2) < 1e-6)
+  assert.ok(Math.abs(big.hopperEntrance.maxX - small.hopperEntrance.maxX * 2) < 1e-6)
+})
+
+test('the funnel lips sit on the entrance-gate edges', () => {
+  const g = resolveSceneGeometry(desktopLayout, { width: 1200, height: 560 }, PHYSICS)
+  const left = g.segments.find((s) => s.id === 'funnel-left')
+  const right = g.segments.find((s) => s.id === 'funnel-right')
+  assert.ok(left && right)
+  // Each lip centre is half a lip-length up-and-out from its mouth corner, so it
+  // must sit above the plane and outside its entrance edge.
+  assert.ok(left!.cy < g.hopperEntrance.y)
+  assert.ok(left!.cx < g.hopperEntrance.minX)
+  assert.ok(right!.cx > g.hopperEntrance.maxX)
+})
+
 test('the bean-to-grinder throw is shorter on a mobile scene than a desktop one', () => {
   // Each layout at a box shaped like its own breakpoint (desktop wide, mobile
   // portrait) — that's what makes the mobile throw physically shorter.

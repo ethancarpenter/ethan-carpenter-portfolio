@@ -88,8 +88,10 @@ export interface PhysicsDebugState {
   heldBeanVelocity: { x: number; y: number }
   /** Recent pointer-gesture speed, scene px/s. */
   pointerSpeed: number
+  /** True once the pointer has been idle long enough that the tether is settling. */
+  pointerIdle: boolean
   /** Distance from the held bean to the pointer anchor, scene px. */
   beanAnchorDistance: number
-  /** The active tether tuning, echoed for on-screen reference. */
+  /** The LIVE (blended) tether tuning — reflects the moving <-> idle transition. */
   tether: { length: number; stiffness: number; damping: number }
 }

@@ -59,14 +59,14 @@ export interface PhysicsConfig {
   }
   tether: {
     /**
-     * Spring rest length between the pointer anchor and the bean centre, px.
-     * Keep this SHORT — enough that the bean can visibly swing around the
-     * cursor, not so much that it feels detached.
+     * Spring rest length between the pointer anchor and the bean centre while
+     * the pointer is MOVING, px. Short — enough to swing around the cursor,
+     * not so much that it feels detached.
      */
     length: number
-    /** Matter constraint stiffness, 0..1. Low = a soft, swingy spring. */
+    /** Matter constraint stiffness while moving, 0..1. Low = a soft, swingy spring. */
     stiffness: number
-    /** Matter constraint damping, 0..1. Bleeds off oscillation. */
+    /** Matter constraint damping while moving, 0..1. Bleeds off oscillation. */
     damping: number
     /**
      * Hard safety cap: the bean is never allowed farther than this from the
@@ -74,11 +74,25 @@ export interface PhysicsConfig {
      */
     maxSeparation: number
     /**
-     * Gravity multiplier applied to the bean while it is tethered. 1 keeps
-     * normal weight (it hangs and swings like a pendulum); lower makes it
-     * ride closer to the cursor.
+     * Gravity multiplier applied to the bean while it is held. 0 makes the held
+     * bean weightless so it settles ONTO the anchor instead of hanging below it;
+     * normal weight resumes the instant it is released.
      */
     heldGravityScale: number
+    /** Spring rest length once the pointer has been idle — pulls the bean onto the anchor. */
+    idleLength: number
+    /** Constraint stiffness once idle — firmer, so the bean converges. */
+    idleStiffness: number
+    /** Constraint damping once idle — high, so it settles without oscillating. */
+    idleDamping: number
+    /** Pointer speed (px/s) at or below which the pointer counts as idle. */
+    idleSpeedThreshold: number
+    /** Pointer speed (px/s) that snaps straight back to the moving feel (hysteresis). */
+    idleReleaseThreshold: number
+    /** How long the pointer must stay slow before the tether switches to idle, ms. */
+    idleDelayMs: number
+    /** Per-frame blend (0..1) of the live constraint params toward the target mode. */
+    idleBlend: number
   }
   bounce: {
     /** Minimum impact speed (px/s) for a collision to count as a bounce. */
@@ -107,6 +121,23 @@ export interface PhysicsConfig {
      * drifts off the opening when the scene is resized.
      */
     dropFrac: number
+    /**
+     * Width of the top-entry gate (the plane a bean must cross downward to
+     * count), as a fraction of the grinderHopper anchor width. This is the
+     * real acceptance test now — the Matter sensor is only a backstop.
+     */
+    entranceWidthScale: number
+    /**
+     * Extra half-width (as a fraction of bean width) added to the entry X
+     * bounds so a shot that visibly clips the rim on the way in still counts.
+     */
+    entranceFairnessScale: number
+    /**
+     * Minimum downward velocity (px/s) for a RELEASED bean to count as entering
+     * from the top. Small — a gently falling bean still qualifies; a bean fired
+     * horizontally through the side (vy ~ 0) does not.
+     */
+    entranceMinDownSpeed: number
   }
   walls: {
     /** Thickness of the invisible bounds, px. */
@@ -121,6 +152,18 @@ export interface PhysicsConfig {
     thickness: number
     angleDeg: number
     restitution: number
+  }
+  grinder: {
+    /**
+     * Upward speed (px/s) a bean is given when it reaches a grinder that can't
+     * accept it (filter full / being carried). It is bounced back out and stays
+     * in play instead of vanishing without a reward.
+     */
+    deflectSpeed: number
+    /** Sideways nudge (px/s) added to the deflection so the bean clears the mouth. */
+    deflectSideSpeed: number
+    /** Minimum gap between "grinder busy" cues fired from deflections, ms. */
+    deflectCueCooldownMs: number
   }
   scoring: ScoringThresholds
 }
@@ -146,11 +189,18 @@ export const PHYSICS: PhysicsConfig = {
     maxSpin: 0.9,
   },
   tether: {
-    length: 14,
-    stiffness: 0.035,
-    damping: 0.08,
+    length: 12,
+    stiffness: 0.05,
+    damping: 0.09,
     maxSeparation: 90,
-    heldGravityScale: 1,
+    heldGravityScale: 0,
+    idleLength: 0.5,
+    idleStiffness: 0.2,
+    idleDamping: 0.55,
+    idleSpeedThreshold: 45,
+    idleReleaseThreshold: 95,
+    idleDelayMs: 120,
+    idleBlend: 0.16,
   },
   bounce: {
     minSpeed: 130,
@@ -166,6 +216,9 @@ export const PHYSICS: PhysicsConfig = {
     widthScale: 1.15,
     heightPct: 0.1,
     dropFrac: 0.35,
+    entranceWidthScale: 0.92,
+    entranceFairnessScale: 0.5,
+    entranceMinDownSpeed: 6,
   },
   walls: {
     thickness: 60,
@@ -173,10 +226,15 @@ export const PHYSICS: PhysicsConfig = {
     cleanupMargin: 120,
   },
   funnel: {
-    lengthScale: 0.6,
-    thickness: 7,
-    angleDeg: 34,
-    restitution: 0.35,
+    lengthScale: 0.9,
+    thickness: 9,
+    angleDeg: 38,
+    restitution: 0.4,
+  },
+  grinder: {
+    deflectSpeed: 360,
+    deflectSideSpeed: 150,
+    deflectCueCooldownMs: 600,
   },
   scoring: {
     dropSpeed: 150,

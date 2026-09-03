@@ -24,6 +24,10 @@ export interface SceneLayout {
   grinder: SceneAnchor
   /** The hopper opening — the target beans are tossed into. */
   grinderHopper: SceneAnchor
+  /** Resting spot for the filter basket, on the counter under the grinder spout. */
+  filterHome: SceneAnchor
+  /** Where the full filter basket clicks into the coffee machine. */
+  machineSlot: SceneAnchor
   /** Coffee machine on the right. */
   coffeeMachine: SceneAnchor
   /** Carafe / pot — the brewing interaction. */
@@ -39,6 +43,10 @@ export const desktopLayout: SceneLayout = {
   beanBowl: { x: 4, y: 80, width: 22 },
   grinder: { x: 45, y: 34, width: 17 },
   grinderHopper: { x: 48, y: 30, width: 11 },
+  // On the counter, centred under the grinder body; the basket art nudges
+  // itself up so it rests on the surface rather than hanging from this point.
+  filterHome: { x: 47, y: 57, width: 13 },
+  machineSlot: { x: 78, y: 42, width: 12 },
   coffeeMachine: { x: 74, y: 30, width: 21 },
   carafe: { x: 78, y: 62, width: 12 },
   counterTopY: 62,
@@ -53,6 +61,8 @@ export const mobileLayout: SceneLayout = {
   beanBowl: { x: 8, y: 62, width: 30 },
   grinder: { x: 52, y: 40, width: 30 },
   grinderHopper: { x: 55, y: 35, width: 20 },
+  filterHome: { x: 54, y: 60, width: 22 },
+  machineSlot: { x: 74, y: 33, width: 22 },
   coffeeMachine: { x: 68, y: 20, width: 34 },
   carafe: { x: 74, y: 66, width: 22 },
   counterTopY: 66,

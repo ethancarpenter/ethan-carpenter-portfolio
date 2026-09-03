@@ -35,6 +35,12 @@
   /* The bean canvas mounts here and takes pointer/touch input directly. */
 }
 
+.layerBrew {
+  z-index: var(--z-scene-brew);
+  /* Pass-through container; only the filter basket opts back into pointer input. */
+  pointer-events: none;
+}
+
 .layerEffects {
   z-index: var(--z-scene-effects);
   /* Particles / steam / score popups render here. */

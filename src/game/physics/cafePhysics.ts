@@ -4,10 +4,11 @@
  * React beyond the callbacks it is handed.
  *
  * Responsibilities:
- *  - build static geometry from the shared scene config (walls, funnel, sensor)
+ *  - build static geometry from the shared scene config (walls, funnel, gate)
  *  - spawn beans and keep one grabbable "ready" bean at the bowl
- *  - a spring-tether grab: the pointer is an anchor, the bean swings around it
- *  - hopper sensor detection -> telemetry -> pure classification -> callback
+ *  - a spring-tether grab: the pointer is an anchor, the bean swings around it;
+ *    a still pointer lets the bean settle onto the anchor (no gravity while held)
+ *  - swept top-entry detection -> telemetry -> pure classification -> callback
  *  - stay aligned with the visible scene on resize / breakpoint change
  *  - tear everything down cleanly (React Strict Mode double-mounts this)
  */
@@ -22,6 +23,8 @@ import {
   isEnvironment,
   isSensor,
 } from './beanFactory.ts'
+import { checkHopperEntry, resolveEntryOutcome } from './hopperEntry.ts'
+import type { EntryResult } from './hopperEntry.ts'
 import { PHYSICS, withReducedMotion } from './physicsConfig.ts'
 import type { PhysicsConfig } from './physicsConfig.ts'
 import { resolveSceneGeometry } from './sceneGeometry.ts'
@@ -52,6 +55,8 @@ export interface CafePhysicsOptions {
   onFirstInteraction: () => void
   /** Every accepted throw, already classified. The Milestone 3 seam. */
   onThrowResolved?: (result: ThrowResult) => void
+  /** A bean reached the grinder while it couldn't accept it (filter full / moving). */
+  onThrowRejected?: () => void
   /** Dev-only debug snapshots. Never called per frame. */
   onDebugState?: (state: PhysicsDebugState) => void
 }
@@ -61,6 +66,8 @@ interface BeanEntry {
   state: BeanState
   /** `performance.now()` when the bean last entered play; drives cull order. */
   spawnedAt: number
+  /** Body centre at the start of the current physics step — the swept-check tail. */
+  prev: Vec
 }
 
 
@@ -99,6 +106,24 @@ export class CafePhysics {
   private firstInteractionDone = false
   private debugDraw = false
   private destroyed = false
+
+  /** When false, a bean at the hopper is bounced back out instead of consumed. */
+  private acceptingBeans = true
+  /** `performance.now()` of the last deflection cue; rate-limits `onThrowRejected`. */
+  private lastDeflectCueAt = Number.NEGATIVE_INFINITY
+
+  // --- pointer-idle tether settling ---
+  /** Smoothed pointer speed, px/s. Drives the moving <-> idle tether blend. */
+  private pointerSpeedEma = 0
+  private lastPointerMoveAt = Number.NEGATIVE_INFINITY
+  private lastPointerSamplePos: Vec = { x: 0, y: 0 }
+  private tetherIdle = false
+  private tetherIdleSince = -1
+  /** Live (blended) constraint params, mirrored for the debug readout. */
+  private liveTether = { length: 0, stiffness: 0, damping: 0 }
+
+  /** Most recent top-entry test result, for the debug overlay. */
+  private lastEntryResult: EntryResult | null = null
 
   private lastThrow: ThrowResult | null = null
 
@@ -156,6 +181,15 @@ export class CafePhysics {
     this.applyGeometry(layout, this.measure())
   }
 
+  /**
+   * Brew-state seam: while the filter is full or being moved, the grinder can't
+   * use another bean. Rather than consume it silently, we spit it back out.
+   * This never touches geometry — the hopper sensor stays exactly where it is.
+   */
+  setAcceptingBeans(accepting: boolean): void {
+    this.acceptingBeans = accepting
+  }
+
   /** Dev debug-panel checkbox: draw colliders + velocity vectors on the canvas. */
   setDebug(on: boolean): void {
     this.debugDraw = on
@@ -205,6 +239,8 @@ export class CafePhysics {
           x: entry.body.position.x * kx,
           y: entry.body.position.y * ky,
         })
+        // Re-seed the swept-check tail so this teleport can't read as a crossing.
+        entry.prev = { x: entry.body.position.x, y: entry.body.position.y }
         if (entry.state === 'held') {
           this.pointerWorld = { x: this.pointerWorld.x * kx, y: this.pointerWorld.y * ky }
           Body.setVelocity(entry.body, { x: 0, y: 0 })
@@ -247,7 +283,12 @@ export class CafePhysics {
     const { spawn } = this.geometry
     const body = createBeanBody(spawn.x, spawn.y, this.cfg)
     Composite.add(this.world, body)
-    this.beans.set(body.id, { body, state: 'ready', spawnedAt: performance.now() })
+    this.beans.set(body.id, {
+      body,
+      state: 'ready',
+      spawnedAt: performance.now(),
+      prev: { x: spawn.x, y: spawn.y },
+    })
     this.readyId = body.id
   }
 
@@ -286,9 +327,14 @@ export class CafePhysics {
 
   /**
    * The grab is a single Matter spring constraint from a moving world point
-   * (the pointer anchor) to the bean's centre. Low stiffness + damping makes
-   * it a short, swingy tether rather than a rigid rope: the bean lags, orbits,
-   * and builds tangential momentum the player can fling.
+   * (the pointer anchor) to the bean's centre.
+   *
+   * While the pointer MOVES the spring is long and soft: the bean lags, orbits,
+   * and builds the tangential momentum the player flings. While the pointer is
+   * IDLE (see {@link onBeforeUpdate}) the rest length collapses toward zero and
+   * stiffness/damping rise, so the bean glides onto the anchor and rests there
+   * instead of hanging below it. The held bean also carries no gravity — normal
+   * weight resumes the instant it is released, with no velocity discontinuity.
    */
   private attachGrab(entry: BeanEntry, anchor: Vec): void {
     const { tether } = this.cfg
@@ -303,6 +349,18 @@ export class CafePhysics {
     this.grabConstraint = constraint
     Composite.add(this.world, constraint)
     setGravityScale(entry.body, tether.heldGravityScale)
+
+    // Start in the "moving" mode; only settle after a real dwell of stillness.
+    this.tetherIdle = false
+    this.tetherIdleSince = -1
+    this.pointerSpeedEma = tether.idleReleaseThreshold + 1
+    this.lastPointerMoveAt = performance.now()
+    this.lastPointerSamplePos = { x: anchor.x, y: anchor.y }
+    this.liveTether = {
+      length: tether.length,
+      stiffness: tether.stiffness,
+      damping: tether.damping,
+    }
   }
 
   /** Always paired with ending a grab — never leave a dangling constraint. */
@@ -378,8 +436,22 @@ export class CafePhysics {
   private onPointerMove = (e: PointerEvent): void => {
     if (this.destroyed || this.heldId == null || e.pointerId !== this.activePointerId) return
     const world = this.toWorld(e)
+    const now = performance.now()
+
+    const dt = now - this.lastPointerMoveAt
+    if (dt > 0 && dt < 200) {
+      const d = Math.hypot(
+        world.x - this.lastPointerSamplePos.x,
+        world.y - this.lastPointerSamplePos.y,
+      )
+      const inst = (d / dt) * 1000
+      this.pointerSpeedEma = this.pointerSpeedEma * 0.5 + inst * 0.5
+    }
+    this.lastPointerMoveAt = now
+    this.lastPointerSamplePos = world
+
     this.pointerWorld = world
-    this.trackers.get(this.heldId)?.addPointerSample(world, performance.now())
+    this.trackers.get(this.heldId)?.addPointerSample(world, now)
   }
 
   private onPointerEnd = (e: PointerEvent): void => {
@@ -447,13 +519,25 @@ export class CafePhysics {
   // --------------------------------------------------------------- stepping
 
   private onBeforeUpdate = (): void => {
-    if (this.destroyed || this.heldId == null || !this.grabConstraint) return
+    if (this.destroyed) return
+
+    // Snapshot every bean's position at the START of the step. The swept
+    // top-entry check in onAfterUpdate compares this tail against the post-step
+    // position, so a fast bean that skips the sensor is still caught.
+    for (const entry of this.beans.values()) {
+      entry.prev = { x: entry.body.position.x, y: entry.body.position.y }
+    }
+
+    if (this.heldId == null || !this.grabConstraint) return
     const entry = this.beans.get(this.heldId)
     if (!entry) {
       this.detachGrab()
       this.heldId = null
       return
     }
+
+    const now = performance.now()
+    this.updateTetherMode(now)
 
     // Move the spring anchor to the (bounds-clamped) pointer. No Body.setPosition
     // pin — Matter simulates the bean swinging toward the anchor.
@@ -480,9 +564,51 @@ export class CafePhysics {
     }
   }
 
+  /**
+   * Blend the live spring params between the "moving" and "idle" presets. The
+   * pointer is idle once its smoothed speed has stayed under `idleSpeedThreshold`
+   * for `idleDelayMs`; it snaps back to moving the moment speed crosses
+   * `idleReleaseThreshold` (hysteresis stops pointer jitter from flip-flopping).
+   * The blend is a per-frame lerp, so the transition is continuous — the bean is
+   * never teleported onto the cursor.
+   */
+  private updateTetherMode(now: number): void {
+    if (!this.grabConstraint) return
+    const t = this.cfg.tether
+
+    // A still pointer fires no pointermove events — decay the estimate toward 0.
+    if (now - this.lastPointerMoveAt > 40) this.pointerSpeedEma *= 0.8
+
+    if (this.pointerSpeedEma <= t.idleSpeedThreshold) {
+      if (this.tetherIdleSince < 0) this.tetherIdleSince = now
+      if (now - this.tetherIdleSince >= t.idleDelayMs) this.tetherIdle = true
+    } else if (this.pointerSpeedEma >= t.idleReleaseThreshold) {
+      this.tetherIdleSince = -1
+      this.tetherIdle = false
+    }
+
+    const target = this.tetherIdle
+      ? { length: t.idleLength, stiffness: t.idleStiffness, damping: t.idleDamping }
+      : { length: t.length, stiffness: t.stiffness, damping: t.damping }
+
+    const c = this.grabConstraint
+    const k = t.idleBlend
+    c.length += (target.length - c.length) * k
+    c.stiffness += (target.stiffness - c.stiffness) * k
+    c.damping += (target.damping - c.damping) * k
+    this.liveTether = { length: c.length, stiffness: c.stiffness, damping: c.damping }
+  }
+
   private onAfterUpdate = (): void => {
     if (this.destroyed) return
     const now = performance.now()
+
+    // Authoritative acceptance: did any bean's swept path this step cross the
+    // hopper's top entrance? Runs before the removal flush so a bean consumed
+    // this frame leaves the world this frame — no one-step ghost body.
+    for (const entry of this.beans.values()) {
+      if (entry.state === 'held' || entry.state === 'loose') this.trySweptEntry(entry, now)
+    }
 
     if (this.removeQueue.length) {
       Composite.remove(this.world, this.removeQueue)
@@ -531,17 +657,51 @@ export class CafePhysics {
       const other = beanBody === pair.bodyA ? pair.bodyB : pair.bodyA
 
       if (isSensor(other)) {
-        this.handleHopperEntry(entry, now)
+        // Secondary trigger only — same top-entry test as the per-step sweep,
+        // so a bean touching the sensor volume from the side still doesn't count.
+        this.trySweptEntry(entry, now)
       } else if (isEnvironment(other)) {
         this.trackers.get(beanBody.id)?.registerBounce(beanBody.speed * STEP_HZ, now)
       }
     }
   }
 
-  // ---------------------------------------------------------------- scoring
+  // --------------------------------------------------------- hopper acceptance
 
-  private handleHopperEntry(entry: BeanEntry, now: number): void {
+  /**
+   * The one authoritative acceptance path. Runs the pure {@link checkHopperEntry}
+   * on this bean's swept segment (start-of-step centre -> now) and, on a valid
+   * downward top crossing, either consumes the bean or — if the grinder can't
+   * take it — deflects it. Both the per-step sweep and the Matter sensor event
+   * funnel through here, so there is exactly one success implementation.
+   */
+  private trySweptEntry(entry: BeanEntry, now: number): void {
     if (entry.state === 'consumed') return
+    const body = entry.body
+    const curr = { x: body.position.x, y: body.position.y }
+    const velocity = { x: body.velocity.x * STEP_HZ, y: body.velocity.y * STEP_HZ }
+
+    const result = checkHopperEntry(entry.prev, curr, velocity, this.geometry.hopperEntrance, {
+      fairnessMargin: this.cfg.bean.width * this.cfg.sensor.entranceFairnessScale,
+      // A held bean the player is lowering in is deliberate — don't demand speed.
+      minDownSpeed: entry.state === 'held' ? 0 : this.cfg.sensor.entranceMinDownSpeed,
+    })
+    // Keep the last *interesting* verdict for the overlay (ignore the constant
+    // "no-cross" from beans that are nowhere near the mouth).
+    if (result.entered || result.reason !== 'no-cross') this.lastEntryResult = result
+
+    const outcome = resolveEntryOutcome(result.entered, this.acceptingBeans)
+    if (outcome === 'ignore') return
+    if (outcome === 'deflect') {
+      this.deflectFromHopper(entry, now)
+      return
+    }
+    this.consumeBean(entry, now)
+  }
+
+  private consumeBean(entry: BeanEntry, now: number): void {
+    if (entry.state === 'consumed') return
+
     const wasHeld = entry.state === 'held'
     const id = entry.body.id
 
@@ -592,6 +752,30 @@ export class CafePhysics {
     }
     this.emitDebug()
     this.spawnReadyBean()
+  }
+
+  /**
+   * The grinder can't take this bean right now: cut any grab, bounce it up and
+   * slightly toward the bowl so it clears the mouth, and (rate-limited) fire the
+   * "grinder busy" cue. The bean stays in play — nothing is lost, no reward is
+   * silently swallowed.
+   */
+  private deflectFromHopper(entry: BeanEntry, now: number): void {
+    if (entry.state === 'held') this.endDrag('cancel')
+
+    const { deflectSpeed, deflectSideSpeed } = this.cfg.grinder
+    const dir = entry.body.position.x < this.geometry.sensor.cx ? -1 : 1
+    Body.setVelocity(entry.body, {
+      x: (dir * deflectSideSpeed) / STEP_HZ,
+      y: -Math.abs(deflectSpeed) / STEP_HZ,
+    })
+    Body.setAngularVelocity(entry.body, (Math.random() - 0.5) * 0.25)
+    Sleeping.set(entry.body, false)
+
+    if (now - this.lastDeflectCueAt >= this.cfg.grinder.deflectCueCooldownMs) {
+      this.lastDeflectCueAt = now
+      this.opts.onThrowRejected?.()
+    }
   }
 
   private fallbackTelemetry(
@@ -667,20 +851,73 @@ export class CafePhysics {
       ctx.strokeRect(-seg.width / 2, -seg.height / 2, seg.width, seg.height)
       ctx.restore()
     }
+    // Secondary Matter sensor volume (dashed — no longer the acceptance test).
     const s = this.geometry.sensor
-    ctx.strokeStyle = 'rgba(90, 220, 120, 0.9)'
-    ctx.lineWidth = 2
-    ctx.strokeRect(s.cx - s.width / 2, s.cy - s.height / 2, s.width, s.height)
-
-    ctx.strokeStyle = 'rgba(233, 163, 61, 0.9)'
+    ctx.save()
+    ctx.setLineDash([4, 4])
+    ctx.strokeStyle = 'rgba(90, 220, 120, 0.55)'
     ctx.lineWidth = 1
+    ctx.strokeRect(s.cx - s.width / 2, s.cy - s.height / 2, s.width, s.height)
+    ctx.restore()
+
+    // THE acceptance line: a bean must cross this, downward, between the caps.
+    const e = this.geometry.hopperEntrance
+    const fair = this.cfg.bean.width * this.cfg.sensor.entranceFairnessScale
+    ctx.strokeStyle = 'rgba(90, 210, 255, 0.3)' // fairness margin
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(e.minX - fair, e.y)
+    ctx.lineTo(e.maxX + fair, e.y)
+    ctx.stroke()
+    ctx.strokeStyle = 'rgba(90, 210, 255, 0.95)' // valid mouth span
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    ctx.moveTo(e.minX, e.y)
+    ctx.lineTo(e.maxX, e.y)
+    ctx.stroke()
+    ctx.lineWidth = 1.5
+    ctx.beginPath()
+    ctx.moveTo(e.minX, e.y - 7)
+    ctx.lineTo(e.minX, e.y + 7)
+    ctx.moveTo(e.maxX, e.y - 7)
+    ctx.lineTo(e.maxX, e.y + 7)
+    const mid = (e.minX + e.maxX) / 2
+    ctx.moveTo(mid, e.y - 18)
+    ctx.lineTo(mid, e.y - 3)
+    ctx.moveTo(mid - 4, e.y - 8)
+    ctx.lineTo(mid, e.y - 3)
+    ctx.lineTo(mid + 4, e.y - 8)
+    ctx.stroke()
+
+    ctx.fillStyle = 'rgba(90, 210, 255, 0.95)'
+    ctx.font = '10px monospace'
+    const entryNote = this.lastEntryResult
+      ? this.lastEntryResult.entered
+        ? 'entry: OK'
+        : `entry rejected: ${this.lastEntryResult.reason ?? '?'}`
+      : 'top-entry gate'
+    ctx.fillText(entryNote, e.minX, e.y - 26)
+
+    // Velocity vectors (amber) + swept prev->current segments (magenta).
     for (const entry of this.beans.values()) {
+      if (entry.state === 'consumed') continue
       const { x, y } = entry.body.position
       const v = entry.body.velocity
+      ctx.strokeStyle = 'rgba(233, 163, 61, 0.9)'
+      ctx.lineWidth = 1
       ctx.beginPath()
       ctx.moveTo(x, y)
       ctx.lineTo(x + v.x * 4, y + v.y * 4)
       ctx.stroke()
+
+      if (Math.hypot(x - entry.prev.x, y - entry.prev.y) >= 2) {
+        ctx.strokeStyle = 'rgba(255, 90, 200, 0.9)'
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(entry.prev.x, entry.prev.y)
+        ctx.lineTo(x, y)
+        ctx.stroke()
+      }
     }
 
     // Spring tether: anchor point + line to the held bean.
@@ -708,7 +945,6 @@ export class CafePhysics {
     const heldBeanVelocity = held
       ? { x: held.body.velocity.x * STEP_HZ, y: held.body.velocity.y * STEP_HZ }
       : { x: 0, y: 0 }
-    const heldTracker = this.heldId != null ? this.trackers.get(this.heldId) : undefined
 
     this.opts.onDebugState({
       lastThrow: this.lastThrow,
@@ -716,16 +952,20 @@ export class CafePhysics {
       dragging: this.heldId != null,
       heldBeanSpeed: Math.hypot(heldBeanVelocity.x, heldBeanVelocity.y),
       heldBeanVelocity,
-      pointerSpeed: heldTracker ? heldTracker.pointerSpeed() : 0,
+      pointerSpeed: this.heldId != null ? this.pointerSpeedEma : 0,
+      pointerIdle: this.tetherIdle,
       beanAnchorDistance:
         held && anchor
           ? Math.hypot(held.body.position.x - anchor.x, held.body.position.y - anchor.y)
           : 0,
-      tether: {
-        length: this.cfg.tether.length,
-        stiffness: this.cfg.tether.stiffness,
-        damping: this.cfg.tether.damping,
-      },
+      tether:
+        this.heldId != null
+          ? { ...this.liveTether }
+          : {
+              length: this.cfg.tether.length,
+              stiffness: this.cfg.tether.stiffness,
+              damping: this.cfg.tether.damping,
+            },
     })
   }
 }

@@ -1,16 +1,28 @@
+import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 
+import type { FilterStage } from '../brew/brewMachine.ts'
 import type { SceneLayout } from '../sceneConfig.ts'
 import styles from './SceneUiLayer.module.css'
 
 interface SceneUiLayerProps {
   className: string
   layout: SceneLayout
+  /** Where we are in the coffee-prep flow — drives the in-world hint. */
+  stage: FilterStage
+  /** True once grinding has started or grounds are in the filter. */
+  started: boolean
+  /** Bumped when a bean hits a grinder that can't use it. */
+  busyTick: number
 }
 
-/** In-scene HUD: grinder fill, global brew count, and the toss hint. */
-export function SceneUiLayer({ className, layout }: SceneUiLayerProps) {
-  const { grinder, grinderHopper } = layout
+/**
+ * In-scene HUD: the (still-placeholder) global brew-count slot and a single
+ * contextual hint. The abstract grinder progress bar was removed in Milestone 3
+ * — the grounds visibly filling the paper filter are the progress indicator now.
+ */
+export function SceneUiLayer({ className, layout, stage, started, busyTick }: SceneUiLayerProps) {
+  const { grinderHopper } = layout
 
   // Anchor the hint just above the hopper opening.
   const hintStyle: CSSProperties = {
@@ -18,12 +30,15 @@ export function SceneUiLayer({ className, layout }: SceneUiLayerProps) {
     bottom: `${100 - grinderHopper.y + 4}%`,
   }
 
-  // Sit the fill gauge on the counter directly beneath the grinder, clear of
-  // the bean bowl / spawn zone on the left and the open throwing path.
-  const progressStyle: CSSProperties = {
-    left: `${grinder.x + grinder.width / 2}%`,
-    top: `${layout.counterTopY + 2}%`,
-  }
+  const [busyCue, setBusyCue] = useState(false)
+  useEffect(() => {
+    if (!busyTick) return
+    setBusyCue(true)
+    const timer = window.setTimeout(() => setBusyCue(false), 1600)
+    return () => window.clearTimeout(timer)
+  }, [busyTick])
+
+  const hint = resolveHint(stage, started, busyCue)
 
   return (
     <div className={className}>
@@ -35,27 +50,35 @@ export function SceneUiLayer({ className, layout }: SceneUiLayerProps) {
         <span className="sr-only">Global brew counter coming soon.</span>
       </div>
 
-      <div
-        className={styles.progress}
-        style={progressStyle}
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={0}
-        aria-label="Grinder fill level"
-      >
-        <div className={styles.progressLabelRow}>
-          <span className={styles.progressTitle}>Grinder</span>
-          <span>empty</span>
-        </div>
-        <div className={styles.bar}>
-          <div className={styles.barFill} />
-        </div>
-      </div>
-
-      <p className={styles.hint} style={hintStyle}>
-        <span aria-hidden="true">☕</span> Toss a bean in
-      </p>
+      {hint && (
+        <p className={styles.hint} style={hintStyle} data-tone={hint.tone}>
+          <span aria-hidden="true">{hint.icon}</span> {hint.text}
+        </p>
+      )}
     </div>
   )
+}
+
+interface Hint {
+  text: string
+  icon: string
+  tone: 'prompt' | 'progress' | 'ready' | 'busy'
+}
+
+function resolveHint(stage: FilterStage, started: boolean, busyCue: boolean): Hint | null {
+  if (busyCue && (stage === 'ready' || stage === 'carrying')) {
+    return { text: 'Move the full filter to the machine first', icon: '✋', tone: 'busy' }
+  }
+  switch (stage) {
+    case 'filling':
+      return started
+        ? { text: "Keep 'em coming — the filter's filling", icon: '☕', tone: 'progress' }
+        : { text: 'Toss a bean in', icon: '☕', tone: 'prompt' }
+    case 'ready':
+      return { text: "Filter's full — drag it to the machine", icon: '➜', tone: 'ready' }
+    case 'carrying':
+      return { text: 'Drop it into the coffee machine', icon: '➜', tone: 'ready' }
+    case 'installed':
+      return null
+  }
 }

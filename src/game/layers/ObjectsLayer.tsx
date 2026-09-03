@@ -9,6 +9,10 @@ import styles from './layers.module.css'
 interface ObjectsLayerProps {
   className: string
   layout: SceneLayout
+  /** True while the grinder should be shaking (a bean is being ground). */
+  grinderReacting?: boolean
+  /** Bumped when a bean hits the grinder while the filter is full / moving. */
+  grinderBusyTick?: number
 }
 
 /** Turn a percentage anchor from sceneConfig into absolute-position styles. */
@@ -21,7 +25,12 @@ function anchorStyle(anchor: SceneAnchor): CSSProperties {
 }
 
 /** The countertop and cafe props, positioned from the active scene layout. */
-export function ObjectsLayer({ className, layout }: ObjectsLayerProps) {
+export function ObjectsLayer({
+  className,
+  layout,
+  grinderReacting,
+  grinderBusyTick,
+}: ObjectsLayerProps) {
   return (
     <div
       className={className}
@@ -30,7 +39,11 @@ export function ObjectsLayer({ className, layout }: ObjectsLayerProps) {
     >
       <div className={styles.counter} />
       <BeanBowl style={anchorStyle(layout.beanBowl)} />
-      <Grinder style={anchorStyle(layout.grinder)} />
+      <Grinder
+        style={anchorStyle(layout.grinder)}
+        reacting={grinderReacting}
+        busyTick={grinderBusyTick}
+      />
       <CoffeeMachine style={anchorStyle(layout.coffeeMachine)} />
       <Carafe style={anchorStyle(layout.carafe)} />
     </div>
