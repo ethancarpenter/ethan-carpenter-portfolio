@@ -1,0 +1,11 @@
+/* The bean canvas fills the physics layer. touch-action:none is scoped to the
+ * canvas only — press-drag on a bean never scrolls the page, but a swipe that
+ * starts anywhere else still does. */
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}

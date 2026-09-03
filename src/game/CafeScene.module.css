@@ -32,8 +32,7 @@
 
 .layerPhysics {
   z-index: var(--z-scene-physics);
-  /* Matter.js canvas mounts here. */
-  pointer-events: none;
+  /* The bean canvas mounts here and takes pointer/touch input directly. */
 }
 
 .layerEffects {

@@ -22,5 +22,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Test files run through tsx + node:test (see scripts/test.mjs); they need
+  // node types the app doesn't, so they're checked there, not in this build.
+  "exclude": ["src/**/*.test.ts"]
 }

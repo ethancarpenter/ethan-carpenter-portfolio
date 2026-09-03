@@ -4,6 +4,7 @@ import { EffectsLayer } from './layers/EffectsLayer.tsx'
 import { ObjectsLayer } from './layers/ObjectsLayer.tsx'
 import { PhysicsLayer } from './layers/PhysicsLayer.tsx'
 import { SceneUiLayer } from './layers/SceneUiLayer.tsx'
+import type { ThrowResult } from './physics/types.ts'
 import { getSceneLayout, SCENE_MOBILE_QUERY } from './sceneConfig.ts'
 import styles from './CafeScene.module.css'
 
@@ -21,7 +22,7 @@ import styles from './CafeScene.module.css'
  * The scene is decorative for assistive tech (role="img"); everything needed to
  * use the site lives outside it.
  */
-export function CafeScene() {
+export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: ThrowResult) => void } = {}) {
   const isMobile = useMediaQuery(SCENE_MOBILE_QUERY)
   const layout = getSceneLayout(isMobile)
 
@@ -29,7 +30,11 @@ export function CafeScene() {
     <div className={styles.scene} data-scene role="img" aria-label="A cozy pixel-art cafe counter with a bean bowl, a coffee grinder, and a coffee machine.">
       <BackgroundLayer className={`${styles.layer} ${styles.layerBackground}`} />
       <ObjectsLayer className={`${styles.layer} ${styles.layerObjects}`} layout={layout} />
-      <PhysicsLayer className={`${styles.layer} ${styles.layerPhysics}`} />
+      <PhysicsLayer
+        className={`${styles.layer} ${styles.layerPhysics}`}
+        layout={layout}
+        onThrowResolved={onThrowResolved}
+      />
       <EffectsLayer className={`${styles.layer} ${styles.layerEffects}`} />
       <SceneUiLayer className={`${styles.layer} ${styles.layerUi}`} layout={layout} />
     </div>

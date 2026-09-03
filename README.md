@@ -7,22 +7,34 @@ content.
 
 ## Status
 
-**Milestone 1 — Foundation (current).** Project setup, responsive site shell,
-placeholder portfolio sections, and the layered cafe-scene architecture with CSS
-placeholder art. No physics, no backend yet.
+**Milestone 2 — Bean physics (current).** Real Matter.js bean toy on the
+Physics layer: grab a bean from the bowl on a short **spring tether** (the
+cursor is a magnetic anchor, the bean lags and swings around it), circle to
+build momentum, and fling it — the bean keeps its own accumulated velocity on
+release. Misses bounce/roll on the counter; a slow drag straight into the
+hopper still counts as a direct drop. Successful throws are classified (direct
+drop / nice toss / great shot / bank shot) by a pure scoring function and
+reported through a callback — nothing is wired to grinder progress yet.
+Dev-only debug panel for tuning. No grinder animation, grounds, brewing,
+counter, or backend.
 
-Roadmap: 2) bean physics (Matter.js) · 3) grinder / brew interaction ·
+Roadmap: ~~2) bean physics (Matter.js)~~ · 3) grinder / brew interaction ·
 4) real portfolio content · 5) global brew counter (Cloudflare) · 6) polish ·
 7) launch.
 
 ## Stack
 
 - **React 19 + TypeScript**, **Vite 6**, **CSS Modules**
-- **oxlint** for linting
+- **Matter.js 0.20** (`@types/matter-js` dev-only) — the bean physics engine,
+  instantiated only for the cafe scene
+- **oxlint** for linting; **`node:test` + `tsx`** for unit tests
+  (`npm test` → `scripts/test.mjs` runs every `src/**/*.test.ts`). Vitest was
+  avoided: v2 ships an old bundled Vite/esbuild with advisories, v3+ needs
+  Node > 20.18.
 - Pinned to Vite 6 / TS 5.7 because the current `create-vite` output requires
   Node ≥ 20.19; this repo targets Node 20.18+.
 
-No other runtime dependencies. Matter.js is added in Milestone 2.
+No other runtime dependencies.
 
 ## Commands
 
@@ -33,6 +45,7 @@ npm run build      # tsc project build + vite production build
 npm run preview    # serve the production build locally
 npm run lint       # oxlint
 npm run typecheck  # tsc --noEmit
+npm test           # node:test + tsx over src/**/*.test.ts
 ```
 
 ## Architecture
@@ -46,6 +59,11 @@ src/
     sceneConfig.ts    percentage anchors for every object (desktop + mobile)
     layers/           Background · Objects · Physics · Effects · SceneUI
     objects/          BeanBowl · Grinder · CoffeeMachine / Carafe (placeholder art)
+    physics/          Matter.js: engine lifecycle, scene geometry, bean factory,
+                      spring-tether grab + safety maths, throw tracker,
+                      tuning config (physicsConfig.ts)
+    scoring/          classifyThrow() — pure, deterministic, unit-tested
+    debug/            dev-only physics tuning panel
   hooks/          useMediaQuery, useReducedMotion, useActiveSection
   content/        portfolio copy (single edit point; placeholder for now)
   styles/         tokens.css (palette / type / spacing / z-index) + global.css
@@ -60,7 +78,7 @@ src/
 | ---------- | ------------------------------------------ | ----------- |
 | Background | wall, window, shelves, lighting            | decorative  |
 | Objects    | counter, bean bowl, grinder, machine, pot  | decorative  |
-| Physics    | Matter.js canvas mount point               | empty       |
+| Physics    | Matter.js bean toy on a `<canvas>`         | live        |
 | Effects    | particles / steam / score popups           | empty       |
 | Scene UI   | grinder progress, brew-counter slot, hint  | live        |
 
@@ -74,9 +92,19 @@ nothing here is a flattened background.
 
 - Skip link, semantic landmarks (`header`/`nav`/`main`/`footer`), one `<h1>`,
   section `<h2>`s with `aria-labelledby`.
-- The whole cafe scene is decorative (`role="img"` + `aria-hidden` sub-layers);
-  nothing needed to use the site lives inside it.
-- `prefers-reduced-motion` disables transitions, smooth scroll, and the
-  bean / hint animations.
+- The whole cafe scene is decorative (`role="img"` + `aria-hidden` sub-layers),
+  the bean toy included; nothing needed to use the site lives inside it. The
+  bean interaction is pointer/touch only in this milestone — a keyboard/AT
+  "drop a bean in" affordance is a candidate for a later milestone (the
+  controller already exposes a clean throw-result callback to build on).
+- `prefers-reduced-motion` disables transitions, smooth scroll, and the hint
+  animation; the demo-bean wiggle is gone. The bean toy is user-driven (the
+  swing only happens while you move the cursor) — it stays playable, adds no
+  automatic motion, and under reduced motion the tether damps harder and beans
+  shed energy faster so nothing keeps swinging or rolling on its own.
+- The bean `<canvas>` sets `touch-action: none` on itself only, so a drag never
+  scrolls the page while the page still scrolls normally everywhere else.
+- The intro auto-collapses on the first bean grab (desktop overlay only, via
+  the existing `autoCollapse()` — no focus change).
 - Keyboard-operable nav with a disclosure menu on mobile (Esc to close),
   visible focus rings, 44px minimum touch targets on buttons.

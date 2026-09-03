@@ -215,37 +215,6 @@
     radial-gradient(6px 8px at 57% 52%, var(--c-coffee-800) 60%, transparent 62%);
 }
 
-/* One bean resting on the rim — the demo bean that shows the toss gesture. */
-.demoBean {
-  position: absolute;
-  left: 78%;
-  top: 26%;
-  width: 11px;
-  height: 14px;
-  background: var(--c-coffee-900);
-  border-radius: 50%;
-}
-
-.demoBean::after {
-  content: '';
-  position: absolute;
-  inset: 3px 5px 3px 4px;
-  background: var(--c-coffee-500);
-  border-radius: 50%;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .demoBean {
-    animation: beanNudge 4.5s var(--ease-out) infinite;
-  }
-}
-
-@keyframes beanNudge {
-  0%, 78%, 100% { transform: translate(0, 0) rotate(0); }
-  84% { transform: translate(0, -10px) rotate(-12deg); }
-  90% { transform: translate(2px, -4px) rotate(6deg); }
-}
-
 /* ---- Grinder (the throw target) ---- */
 .grinder {
   aspect-ratio: 3 / 4;

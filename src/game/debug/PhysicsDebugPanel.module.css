@@ -1,0 +1,82 @@
+/* Dev-only. Fixed to the viewport corner, clear of the scene play area. */
+
+.panel {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  z-index: 9999;
+  width: 200px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  line-height: 1.5;
+  color: #f4e9d8;
+  background: rgba(20, 12, 8, 0.92);
+  border: 1px solid #6f4e37;
+  border-radius: 3px;
+  pointer-events: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(111, 78, 55, 0.4);
+}
+
+.toggle {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  background: transparent;
+  border: 1px solid #6f4e37;
+  border-radius: 2px;
+  line-height: 1;
+}
+
+.body {
+  padding: 6px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rowLabel {
+  opacity: 0.7;
+}
+
+.rowValue {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rule {
+  margin: 5px 0;
+  border: none;
+  border-top: 1px solid rgba(111, 78, 55, 0.5);
+}
+
+.section {
+  margin-bottom: 3px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.empty {
+  opacity: 0.6;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
