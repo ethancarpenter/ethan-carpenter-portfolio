@@ -33,6 +33,11 @@
   --c-amber: #e8a33d;
   --c-amber-glow: #f6c874;
   --c-terracotta: #c96f4a;
+  /* Same hue, darkened for text: c-terracotta on cream is ~3:1, which fails
+     WCAG AA (4.5:1) for the small eyebrow labels and link-hover text that use
+     it. c-terracotta itself is untouched — it stays as-is for decorative,
+     non-text uses (game art backgrounds). */
+  --c-terracotta-deep: #96502e;
   --c-sage: #8a9a68;
   --c-sage-dark: #6d7c4f;
 
@@ -44,9 +49,9 @@
   --color-text: var(--c-coffee-900);
   --color-text-muted: #6b5641;
   --color-heading: var(--c-coffee-800);
-  --color-accent: var(--c-terracotta);
+  --color-accent: var(--c-terracotta-deep);
   --color-link: var(--c-coffee-600);
-  --color-link-hover: var(--c-terracotta);
+  --color-link-hover: var(--c-terracotta-deep);
   --color-focus: #2f6f6a;
 
   /* ---- Typography ----
