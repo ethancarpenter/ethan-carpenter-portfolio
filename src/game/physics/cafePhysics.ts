@@ -1,7 +1,8 @@
 /**
- * The bean toy's engine controller. Owns exactly one Matter.js `Engine` and
- * `Runner` for the lifetime of one <PhysicsLayer> mount, and nothing about
- * React beyond the callbacks it is handed.
+ * The bean toy's engine controller. Owns exactly one Matter.js `Engine` and its
+ * own fixed-timestep, sub-stepped update loop (see {@link PHYSICS_SUBSTEPS})
+ * for the lifetime of one <PhysicsLayer> mount, and nothing about React beyond
+ * the callbacks it is handed.
  *
  * Responsibilities:
  *  - build static geometry from the shared scene config (walls, funnel, gate)
@@ -35,10 +36,24 @@ import type { BeanState, PhysicsDebugState, ThrowResult, ThrowTelemetry, Vec } f
 import type { SceneLayout } from '../sceneConfig.ts'
 import { toThrowResult } from '../scoring/throwScoring.ts'
 
-const { Body, Composite, Constraint, Engine, Events, Query, Runner, Sleeping } = Matter
+const { Body, Composite, Constraint, Engine, Events, Query, Sleeping } = Matter
 
 /** Matter integrates in ~1/60 s steps; velocities are px per step, not per second. */
 const STEP_HZ = 60
+/** Nominal ms per full physics step, at STEP_HZ. */
+const STEP_MS = 1000 / STEP_HZ
+/**
+ * Physics substeps per rendered frame. Splitting each step into smaller Engine
+ * updates gives fast beans more chances to be caught mid-flight instead of
+ * tunnelling through thin colliders between one full step and the next. Matter
+ * normalises `body.velocity` back to a fixed 1/60s scale regardless of the
+ * delta actually passed to `Engine.update`, so this is free — no velocity/px-s
+ * conversion elsewhere needs to change.
+ */
+const PHYSICS_SUBSTEPS = 2
+/** Clamp a single rAF gap (e.g. a backgrounded tab) so the accumulator can't
+ *  try to catch up with a huge burst of steps. */
+const MAX_FRAME_MS = 100
 
 /** matter-js 0.20 honours `body.gravityScale` at runtime; `@types/matter-js` omits it. */
 function setGravityScale(body: Matter.Body, scale: number): void {
@@ -79,9 +94,12 @@ export class CafePhysics {
   private readonly ctx: CanvasRenderingContext2D
   private readonly engine: Matter.Engine
   private readonly world: Matter.World
-  private readonly runner: Matter.Runner
   private readonly abort = new AbortController()
   private readonly resizeObserver: ResizeObserver
+
+  private rafId: number | null = null
+  private lastFrameTime = 0
+  private frameAccumulatorMs = 0
 
   private layout: SceneLayout
   private geometry: SceneGeometry
@@ -143,7 +161,6 @@ export class CafePhysics {
     this.engine.gravity.scale = this.cfg.gravity.scale
     this.engine.enableSleeping = true
     this.world = this.engine.world
-    this.runner = Runner.create()
 
     const size = this.measure()
     this.geometry = resolveSceneGeometry(this.layout, size, this.cfg)
@@ -167,7 +184,7 @@ export class CafePhysics {
     this.resizeObserver.observe(this.container)
 
     this.spawnReadyBean()
-    Runner.run(this.runner, this.engine)
+    this.rafId = window.requestAnimationFrame(this.step)
 
     if (this.opts.onDebugState) {
       this.debugTimer = window.setInterval(this.emitDebug, 400)
@@ -200,10 +217,10 @@ export class CafePhysics {
     this.destroyed = true
     if (this.replaceTimer != null) window.clearTimeout(this.replaceTimer)
     if (this.debugTimer != null) window.clearInterval(this.debugTimer)
+    if (this.rafId != null) window.cancelAnimationFrame(this.rafId)
     this.abort.abort()
     this.resizeObserver.disconnect()
     this.detachGrab()
-    Runner.stop(this.runner)
     Events.off(this.engine, 'beforeUpdate', this.onBeforeUpdate)
     Events.off(this.engine, 'afterUpdate', this.onAfterUpdate)
     Events.off(this.engine, 'collisionStart', this.onCollisionStart)
@@ -273,6 +290,30 @@ export class CafePhysics {
     const rect = this.container.getBoundingClientRect()
     if (rect.width < 1 || rect.height < 1) return
     this.applyGeometry(this.layout, { width: rect.width, height: rect.height })
+  }
+
+  /**
+   * Fixed-timestep loop with {@link PHYSICS_SUBSTEPS} Engine updates per
+   * accumulated step, replacing `Matter.Runner` (which only ever calls
+   * `Engine.update` once per frame). More, smaller updates give fast beans
+   * more chances to be caught by a collider instead of skipping past it
+   * between one full step and the next.
+   */
+  private step = (time: number): void => {
+    if (this.destroyed) return
+    this.rafId = window.requestAnimationFrame(this.step)
+
+    if (this.lastFrameTime === 0) this.lastFrameTime = time
+    const frameMs = Math.min(time - this.lastFrameTime, MAX_FRAME_MS)
+    this.lastFrameTime = time
+    this.frameAccumulatorMs += frameMs
+
+    while (this.frameAccumulatorMs >= STEP_MS) {
+      for (let i = 0; i < PHYSICS_SUBSTEPS; i += 1) {
+        Engine.update(this.engine, STEP_MS / PHYSICS_SUBSTEPS)
+      }
+      this.frameAccumulatorMs -= STEP_MS
+    }
   }
 
   // ------------------------------------------------------------------ spawn

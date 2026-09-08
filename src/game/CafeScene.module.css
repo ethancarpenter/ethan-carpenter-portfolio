@@ -1,7 +1,9 @@
 .scene {
   position: relative;
   width: 100%;
-  aspect-ratio: 19 / 9;
+  /* ~30% taller than the original 19/9 — gives thrown beans headroom for a
+     natural arc before they clip the ceiling. */
+  aspect-ratio: 13 / 8;
   max-height: 74dvh;
   margin-inline: auto;
   overflow: hidden;

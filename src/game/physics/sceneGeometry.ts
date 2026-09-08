@@ -23,6 +23,8 @@ export interface StaticSegment {
   height: number
   angle: number
   restitution: number
+  friction: number
+  frictionStatic: number
 }
 
 export interface HopperSensor {
@@ -102,6 +104,8 @@ export function resolveSceneGeometry(
       height: t,
       angle: 0,
       restitution: cfg.walls.restitution,
+      friction: cfg.walls.friction,
+      frictionStatic: cfg.walls.frictionStatic,
     },
     // Scene bounds, nudged just off-screen (the scene box already clips).
     {
@@ -112,6 +116,8 @@ export function resolveSceneGeometry(
       height: h * 2 + t,
       angle: 0,
       restitution: cfg.walls.restitution,
+      friction: cfg.walls.friction,
+      frictionStatic: cfg.walls.frictionStatic,
     },
     {
       id: 'wall-right',
@@ -121,6 +127,8 @@ export function resolveSceneGeometry(
       height: h * 2 + t,
       angle: 0,
       restitution: cfg.walls.restitution,
+      friction: cfg.walls.friction,
+      frictionStatic: cfg.walls.frictionStatic,
     },
     {
       id: 'ceiling',
@@ -130,6 +138,8 @@ export function resolveSceneGeometry(
       height: t,
       angle: 0,
       restitution: cfg.walls.restitution,
+      friction: cfg.walls.friction,
+      frictionStatic: cfg.walls.frictionStatic,
     },
   ]
 
@@ -151,6 +161,8 @@ export function resolveSceneGeometry(
       height: cfg.funnel.thickness,
       angle: lipAngle,
       restitution: cfg.funnel.restitution,
+      friction: cfg.funnel.friction,
+      frictionStatic: cfg.funnel.frictionStatic,
     },
     {
       id: 'funnel-right',
@@ -160,6 +172,8 @@ export function resolveSceneGeometry(
       height: cfg.funnel.thickness,
       angle: -lipAngle,
       restitution: cfg.funnel.restitution,
+      friction: cfg.funnel.friction,
+      frictionStatic: cfg.funnel.frictionStatic,
     },
   )
 

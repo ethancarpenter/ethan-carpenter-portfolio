@@ -39,7 +39,8 @@ export function createSegmentBody(segment: StaticSegment): Matter.Body {
     label: `${SEGMENT_LABEL_PREFIX}${segment.id}`,
     isStatic: true,
     restitution: segment.restitution,
-    friction: 0.35,
+    friction: segment.friction,
+    frictionStatic: segment.frictionStatic,
   })
   if (segment.angle !== 0) Body.setAngle(body, segment.angle)
   return body

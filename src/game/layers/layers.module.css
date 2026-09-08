@@ -168,7 +168,7 @@
 
 .counter {
   position: absolute;
-  inset: var(--counter-top, 62%) 0 0 0;
+  inset: var(--counter-top, 70.8%) 0 0 0;
   background:
     linear-gradient(180deg, var(--c-wood-500) 0%, var(--c-wood-600) 18%, var(--c-wood-800) 100%);
   border-top: 4px solid var(--c-wood-400);

@@ -36,20 +36,26 @@ export interface SceneLayout {
   counterTopY: number
 }
 
+// The scene box is ~30% taller than the art was originally designed for (see
+// CafeScene.module.css) so thrown beans have headroom for a real arc. All the
+// extra height goes in ABOVE the objects: every Y anchor below is the old
+// value pushed down by that same 30%-of-old-height offset, then rescaled to
+// the new box — so the counter, grinder and bowl stay put relative to the
+// floor while the ceiling above them lifts.
 export const desktopLayout: SceneLayout = {
   // Bowl sits low on the front-left of the counter, clear of and below the
   // expanded intro panel (which occupies the upper-left wall zone), so a
   // visitor can see and reach a bean before the intro ever collapses.
-  beanBowl: { x: 4, y: 80, width: 22 },
-  grinder: { x: 45, y: 34, width: 17 },
-  grinderHopper: { x: 48, y: 30, width: 11 },
+  beanBowl: { x: 4, y: 84.6, width: 22 },
+  grinder: { x: 45, y: 49.2, width: 17 },
+  grinderHopper: { x: 48, y: 46.1, width: 11 },
   // On the counter, centred under the grinder body; the basket art nudges
   // itself up so it rests on the surface rather than hanging from this point.
-  filterHome: { x: 47, y: 57, width: 13 },
-  machineSlot: { x: 78, y: 42, width: 12 },
-  coffeeMachine: { x: 74, y: 30, width: 21 },
-  carafe: { x: 78, y: 62, width: 12 },
-  counterTopY: 62,
+  filterHome: { x: 47, y: 66.9, width: 13 },
+  machineSlot: { x: 78, y: 55.4, width: 12 },
+  coffeeMachine: { x: 74, y: 46.1, width: 21 },
+  carafe: { x: 78, y: 70.8, width: 12 },
+  counterTopY: 70.8,
 }
 
 /**

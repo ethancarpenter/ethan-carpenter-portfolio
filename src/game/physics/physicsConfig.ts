@@ -143,15 +143,21 @@ export interface PhysicsConfig {
     /** Thickness of the invisible bounds, px. */
     thickness: number
     restitution: number
+    friction: number
+    frictionStatic: number
     /** Beans this far outside the scene are culled and respawned. */
     cleanupMargin: number
   }
   funnel: {
     /** Lip segment length = hopper width x this. */
     lengthScale: number
+    /** Collider thickness, px — deliberately thicker than the drawn lip art so a
+     *  fast bean can't tunnel through the seam between steps. */
     thickness: number
     angleDeg: number
     restitution: number
+    friction: number
+    frictionStatic: number
   }
   grinder: {
     /**
@@ -184,8 +190,11 @@ export const PHYSICS: PhysicsConfig = {
     sampleWindowMs: 90,
     minSampleDt: 6,
     speedScale: 1,
-    maxSpeed: 2600,
-    dropSpeedThreshold: 150,
+    // Was 2600 — fast enough to tunnel through thin colliders and to blow past
+    // every scoring threshold at once. Capped lower so a max-effort throw is
+    // still well above the 3x/4x thresholds without breaking collision.
+    maxSpeed: 1600,
+    dropSpeedThreshold: 175,
     maxSpin: 0.9,
   },
   tether: {
@@ -223,13 +232,22 @@ export const PHYSICS: PhysicsConfig = {
   walls: {
     thickness: 60,
     restitution: 0.15,
+    friction: 0.35,
+    frictionStatic: 0.5,
     cleanupMargin: 120,
   },
   funnel: {
-    lengthScale: 0.9,
-    thickness: 9,
+    // Slightly longer than before so the catch lips reach further out from the
+    // mouth with no thin margin at the tip.
+    lengthScale: 1.05,
+    // Was 9 — thick enough that a fast bean can't tunnel through between steps.
+    thickness: 20,
     angleDeg: 38,
-    restitution: 0.4,
+    // Softer than before so a bean sheds energy and tends to settle/roll toward
+    // the mouth instead of ricocheting away.
+    restitution: 0.25,
+    friction: 0.35,
+    frictionStatic: 0.5,
   },
   grinder: {
     deflectSpeed: 360,
@@ -237,10 +255,13 @@ export const PHYSICS: PhysicsConfig = {
     deflectCueCooldownMs: 600,
   },
   scoring: {
-    dropSpeed: 150,
-    strongSpeed: 900,
-    strongTravel: 180,
-    bankMinSpeed: 500,
+    // DIRECT_DROP_MAX_SPEED — at/below this, a release is a 1x direct drop.
+    dropSpeed: 175,
+    // GREAT_TOSS_MIN_SPEED / GREAT_TOSS_MIN_TRAVEL — a solid, but not extreme, 3x.
+    strongSpeed: 600,
+    strongTravel: 150,
+    // BANK_MIN_SPEED / BANK_MIN_TRAVEL — 4x still requires an actual bounce.
+    bankMinSpeed: 450,
     bankMinTravel: 120,
     bankMinBounces: 1,
   },
