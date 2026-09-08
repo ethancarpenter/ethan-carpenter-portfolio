@@ -4,6 +4,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery.ts'
 import { useReducedMotion } from '../hooks/useReducedMotion.ts'
 import { BrewLayer } from './brew/BrewLayer.tsx'
 import { useBrew } from './brew/useBrew.ts'
+import { useBrewCounter } from './brew/useBrewCounter.ts'
 import { BackgroundLayer } from './layers/BackgroundLayer.tsx'
 import { EffectsLayer } from './layers/EffectsLayer.tsx'
 import { ObjectsLayer } from './layers/ObjectsLayer.tsx'
@@ -37,6 +38,7 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
   const layout = getSceneLayout(isMobile)
   const reducedMotion = useReducedMotion()
   const brew = useBrew()
+  const brewCounter = useBrewCounter(brew.stage)
 
   const handleResolved = useCallback(
     (result: ThrowResult) => {
@@ -82,6 +84,7 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
         stage={brew.stage}
         started={started}
         busyTick={brew.busyTick}
+        brewCounter={brewCounter}
       />
     </div>
   )

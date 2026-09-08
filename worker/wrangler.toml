@@ -1,0 +1,31 @@
+# Cloudflare Worker config for the global coffee-brew counter (Milestone 5).
+# Run every `wrangler`/`npm run worker:*`/`npm run db:*` command from the repo
+# root — the npm scripts already point at this file with --config.
+
+name = "ethancarpenter-brew-counter"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+# --- D1: the persistent global counter ---------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "ethancarpenter-brews"
+# Placeholder. Local dev (`npm run worker:dev` / `npm run db:migrate:local`)
+# works with this placeholder in place — Wrangler's local D1 simulation
+# doesn't validate it. Deploying or running any `--remote` command needs the
+# real id from `wrangler d1 create ethancarpenter-brews`; see README.
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# --- Rate limiting: a few accepted POSTs per visitor per minute --------
+# Fully simulated by Miniflare in local dev — no account-level setup needed,
+# unlike the D1 database above. namespace_id is just a number you pick (must
+# be unique among this account's rate-limit bindings), not a provisioned
+# resource.
+[[ratelimits]]
+name = "BREW_RATE_LIMITER"
+namespace_id = "1001"
+
+[ratelimits.simple]
+limit = 5
+period = 60

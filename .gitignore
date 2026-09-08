@@ -11,6 +11,12 @@ dist
 dist-ssr
 *.local
 
+# Cloudflare Workers / Wrangler local state (D1 sqlite, cache) and local secrets
+.wrangler
+worker/.wrangler
+.dev.vars
+.dev.vars.*
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json

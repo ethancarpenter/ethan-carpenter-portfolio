@@ -1,14 +1,15 @@
 /**
- * Minimal test entry point: find every `*.test.ts` under `src/` and run it with
- * Node's built-in test runner via the `tsx` loader. Node 20.18's `--test`
- * neither globs nor discovers `.ts` files, so we collect them ourselves.
+ * Minimal test entry point: find every `*.test.ts` under `src/` and `worker/src/`
+ * and run it with Node's built-in test runner via the `tsx` loader. Node 20.18's
+ * `--test` neither globs nor discovers `.ts` files, so we collect them ourselves.
  */
-import { readdirSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 
-const SRC = join(dirname(dirname(fileURLToPath(import.meta.url))), 'src')
+const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
+const TEST_ROOTS = [join(ROOT, 'src'), join(ROOT, 'worker', 'src')].filter(existsSync)
 
 /** @param {string} dir @returns {string[]} */
 function collect(dir) {
@@ -21,9 +22,9 @@ function collect(dir) {
   return out
 }
 
-const files = collect(SRC).sort()
+const files = TEST_ROOTS.flatMap(collect).sort()
 if (files.length === 0) {
-  console.log('No *.test.ts files found under src/.')
+  console.log('No *.test.ts files found under src/ or worker/src/.')
   process.exit(0)
 }
 

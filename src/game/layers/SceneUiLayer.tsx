@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 
+import type { BrewCounterState } from '../brew/useBrewCounter.ts'
 import type { FilterStage } from '../brew/brewMachine.ts'
 import type { SceneLayout } from '../sceneConfig.ts'
 import styles from './SceneUiLayer.module.css'
@@ -14,14 +15,26 @@ interface SceneUiLayerProps {
   started: boolean
   /** Bumped when a bean hits a grinder that can't use it. */
   busyTick: number
+  /** The global pots-brewed total (Milestone 5), or its loading/unavailable state. */
+  brewCounter: BrewCounterState
 }
 
+const COUNT_FORMATTER = new Intl.NumberFormat('en-US')
+
 /**
- * In-scene HUD: the (still-placeholder) global brew-count slot and a single
- * contextual hint. The abstract grinder progress bar was removed in Milestone 3
- * — the grounds visibly filling the paper filter are the progress indicator now.
+ * In-scene HUD: the global brew-count slot (shared across every visitor — see
+ * useBrewCounter.ts) and a single contextual hint. The abstract grinder
+ * progress bar was removed in Milestone 3 — the grounds visibly filling the
+ * paper filter are the progress indicator now.
  */
-export function SceneUiLayer({ className, layout, stage, started, busyTick }: SceneUiLayerProps) {
+export function SceneUiLayer({
+  className,
+  layout,
+  stage,
+  started,
+  busyTick,
+  brewCounter,
+}: SceneUiLayerProps) {
   const { grinderHopper } = layout
 
   // Anchor the hint just above the hopper opening.
@@ -42,12 +55,18 @@ export function SceneUiLayer({ className, layout, stage, started, busyTick }: Sc
 
   return (
     <div className={className}>
-      <div className={styles.brewCounter}>
-        <span className={styles.brewCounterLabel}>Coffee brewed here</span>
+      <div className={styles.brewCounter} data-status={brewCounter.status}>
+        <span className={styles.brewCounterLabel}>Pots brewed worldwide</span>
         <span className={styles.brewCounterValue} aria-hidden="true">
-          &mdash;&mdash;&mdash;
+          {brewCounter.status === 'ready' ? COUNT_FORMATTER.format(brewCounter.count) : '———'}
         </span>
-        <span className="sr-only">Global brew counter coming soon.</span>
+        <span className="sr-only">
+          {brewCounter.status === 'ready'
+            ? `Global brew counter: ${COUNT_FORMATTER.format(brewCounter.count)} pots brewed by every visitor to this site.`
+            : brewCounter.status === 'loading'
+              ? 'Global brew counter loading.'
+              : 'Global brew counter is temporarily unavailable.'}
+        </span>
       </div>
 
       {hint && (

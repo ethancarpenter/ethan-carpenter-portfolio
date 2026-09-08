@@ -30,6 +30,13 @@
   line-height: 1;
 }
 
+/* Subtle only: the badge stays in place and legible, it just dims a touch
+   while there's no real total to show yet (or the API is unreachable). */
+.brewCounter[data-status='loading'],
+.brewCounter[data-status='unavailable'] {
+  opacity: 0.6;
+}
+
 .hint {
   position: absolute;
   left: 50%;
