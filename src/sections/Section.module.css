@@ -56,11 +56,16 @@
   gap: var(--space-4);
 }
 
-/* ---- Card grid + timeline used by the content sections ---- */
+/* ---- Card grid + timeline used by the content sections ----
+   auto-fit + a capped track width (not 1fr) + centered leftover space: with
+   few items (the two-project grid especially), a trailing lone card centers
+   itself at a normal card width instead of stretching edge-to-edge or being
+   left stranded next to dead space. Full rows are unaffected. */
 .grid {
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 30rem));
+  justify-content: center;
 }
 
 .card {
@@ -83,6 +88,23 @@
   font-size: var(--text-lg);
 }
 
+/* The one project card called out as the strongest showcase: spans the full
+   row and picks up an accent border so it reads as more prominent than the
+   rest of the grid, not just another tile. */
+.cardFeatured {
+  grid-column: 1 / -1;
+  border-left-color: var(--c-amber);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.badgeGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
 .badge {
   font-family: var(--font-sans);
   font-size: var(--text-xs);
@@ -94,6 +116,21 @@
   border-radius: 999px;
   color: var(--color-text-muted);
   white-space: nowrap;
+}
+
+.badgeFeatured {
+  background: var(--c-amber);
+  border-color: var(--c-amber);
+  color: var(--c-espresso);
+}
+
+.highlights {
+  margin-top: var(--space-3);
+  padding-left: 1.1em;
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
 
 .tags {
@@ -130,9 +167,28 @@
   color: var(--color-text-muted);
 }
 
-.placeholderNote {
-  margin-top: var(--space-6);
+.linkRow {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-family: var(--font-sans);
   font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  font-style: italic;
+  font-weight: 600;
+  color: var(--c-coffee-800);
+  text-decoration: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.linkButton:hover {
+  border-color: var(--c-coffee-500);
+  color: var(--color-accent);
 }

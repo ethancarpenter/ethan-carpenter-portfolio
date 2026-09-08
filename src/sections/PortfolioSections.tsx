@@ -16,7 +16,7 @@ export function About() {
       id="about"
       eyebrow="Pull up a chair"
       title="About"
-      lede="Placeholder bio for now."
+      lede="Computer science degree, professional leadership experience, and real projects built end to end."
       tone="alt"
     >
       <div className={styles.prose}>
@@ -34,16 +34,31 @@ export function Projects() {
       id="projects"
       eyebrow="On the menu"
       title="Projects"
-      lede="A few things I've built. Placeholder entries for now."
+      lede="A few things I've built: the Dungeons & Dragons Campaign Manager is the main course."
     >
       <div className={styles.grid}>
         {PROJECTS.map((project) => (
-          <article key={project.name} className={styles.card}>
+          <article
+            key={project.name}
+            className={`${styles.card} ${project.featured ? styles.cardFeatured : ''}`}
+          >
             <div className={styles.cardTitleRow}>
               <h3 className={styles.cardTitle}>{project.name}</h3>
-              <span className={styles.badge}>{project.status}</span>
+              <div className={styles.badgeGroup}>
+                {project.featured ? (
+                  <span className={`${styles.badge} ${styles.badgeFeatured}`}>Flagship</span>
+                ) : null}
+                <span className={styles.badge}>{project.status}</span>
+              </div>
             </div>
             <p>{project.summary}</p>
+            {project.highlights ? (
+              <ul className={styles.highlights}>
+                {project.highlights.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            ) : null}
             <ul className={styles.tags}>
               {project.tags.map((tag) => (
                 <li key={tag} className={styles.tag}>
@@ -51,12 +66,33 @@ export function Projects() {
                 </li>
               ))}
             </ul>
+            {project.github || project.demo ? (
+              <div className={styles.linkRow}>
+                {project.github ? (
+                  <a
+                    className={styles.linkButton}
+                    href={project.github}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Source
+                  </a>
+                ) : null}
+                {project.demo ? (
+                  <a
+                    className={styles.linkButton}
+                    href={project.demo}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Live demo
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
           </article>
         ))}
       </div>
-      <p className={styles.placeholderNote}>
-        Real projects, source links, and live demos coming soon.
-      </p>
     </Section>
   )
 }
@@ -67,14 +103,14 @@ export function Experience() {
       id="experience"
       eyebrow="The back room"
       title="Experience"
-      lede="Placeholder timeline."
+      lede="Years of professional leadership, alongside the CS degree."
       tone="alt"
     >
       <div className={styles.timeline}>
         {EXPERIENCE.map((entry) => (
-          <div key={`${entry.org}-${entry.period}`} className={styles.timelineItem}>
+          <div key={entry.role} className={styles.timelineItem}>
             <h3 className={styles.cardTitle}>
-              {entry.role} &mdash; {entry.org}
+              {entry.role} at {entry.org}
             </h3>
             <p className={styles.timelineMeta}>{entry.period}</p>
             <p>{entry.detail}</p>
@@ -91,7 +127,7 @@ export function Skills() {
       id="skills"
       eyebrow="House blend"
       title="Skills"
-      lede="Tools I reach for most."
+      lede="Languages and tools I actually use, in the projects above."
     >
       <div className={styles.grid}>
         {SKILL_GROUPS.map((group) => (
@@ -112,22 +148,54 @@ export function Skills() {
 }
 
 export function Contact() {
+  const hasLinks = IDENTITY.linkedin || IDENTITY.github || IDENTITY.resumeHref
+
   return (
     <Section
       id="contact"
       eyebrow="Last call"
       title="Contact"
-      lede="The best way to reach me while the site is being built."
+      lede="The best way to reach me."
       tone="alt"
     >
       <div className={styles.prose}>
         <p>
-          Email:{' '}
-          <a href={`mailto:${IDENTITY.email}`}>{IDENTITY.email}</a>
+          Email: <a href={`mailto:${IDENTITY.email}`}>{IDENTITY.email}</a>
         </p>
-        <p className={styles.placeholderNote}>
-          A proper contact form and social links coming soon.
-        </p>
+        {hasLinks ? (
+          <div className={styles.linkRow}>
+            {IDENTITY.linkedin ? (
+              <a
+                className={styles.linkButton}
+                href={IDENTITY.linkedin}
+                target="_blank"
+                rel="noreferrer"
+              >
+                LinkedIn
+              </a>
+            ) : null}
+            {IDENTITY.github ? (
+              <a
+                className={styles.linkButton}
+                href={IDENTITY.github}
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub
+              </a>
+            ) : null}
+            {IDENTITY.resumeHref ? (
+              <a
+                className={styles.linkButton}
+                href={IDENTITY.resumeHref}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Resume
+              </a>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </Section>
   )

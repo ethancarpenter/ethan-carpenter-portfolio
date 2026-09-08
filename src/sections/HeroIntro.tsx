@@ -122,6 +122,16 @@ export function HeroIntro() {
           <a className={`${styles.btn} ${styles.btnSecondary}`} href="#about">
             About me
           </a>
+          {IDENTITY.resumeHref ? (
+            <a
+              className={`${styles.btn} ${styles.btnSecondary}`}
+              href={IDENTITY.resumeHref}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Resume
+            </a>
+          ) : null}
         </div>
       </div>
     </div>

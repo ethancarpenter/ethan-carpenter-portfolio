@@ -16,9 +16,9 @@ export function Home() {
             <div className={styles.sceneWrap}>
               <CafeScene />
               <p className={styles.sceneCaption}>
-                A pixel-art cafe in progress. Soon you&rsquo;ll be able to toss coffee beans
-                into the grinder and brew a pot &mdash; but it will never get in the way of
-                the portfolio.
+                A pixel-art cafe you can play with: toss coffee beans into the grinder and
+                brew a pot. It&rsquo;s just for fun, and the portfolio below never depends on
+                it.
               </p>
             </div>
             <HeroIntro />
