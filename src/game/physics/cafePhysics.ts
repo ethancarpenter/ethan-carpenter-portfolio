@@ -782,13 +782,31 @@ export class CafePhysics {
     for (const entry of this.beans.values()) this.drawBean(ctx, entry)
   }
 
+  /**
+   * A coffee bean: a chamfered-rectangle body drawn as an oval that matches the
+   * collider footprint (`cfg.bean` = 15x10), with a baked highlight, the
+   * characteristic centre crease, and a small specular dot. Light is treated as
+   * coming from the upper right, consistent with the rest of the scene.
+   */
   private drawBean(ctx: CanvasRenderingContext2D, entry: BeanEntry): void {
     const { width: bw, height: bh } = this.cfg.bean
     const { x, y } = entry.body.position
+    const rx = bw / 2
+    const ry = bh / 2
+
+    // Contact shadow — only when the bean is at rest near the counter, so a bean
+    // in flight doesn't drag a shadow through mid-air.
+    const nearFloor = y > this.geometry.floorY - bh * 2.2
+    if (entry.state === 'ready' || (entry.state === 'loose' && nearFloor)) {
+      ctx.beginPath()
+      ctx.ellipse(x - 1.5, y + ry + 2, rx * 1.05, ry * 0.6, 0, 0, Math.PI * 2)
+      ctx.fillStyle = 'rgba(43, 29, 20, 0.2)'
+      ctx.fill()
+    }
 
     if (entry.state === 'ready') {
       ctx.beginPath()
-      ctx.ellipse(x, y, bw / 2 + 3, bh / 2 + 3, 0, 0, Math.PI * 2)
+      ctx.ellipse(x, y, rx + 4, ry + 4, 0, 0, Math.PI * 2)
       ctx.strokeStyle = 'rgba(246, 200, 116, 0.9)'
       ctx.lineWidth = 2
       ctx.stroke()
@@ -797,16 +815,33 @@ export class CafePhysics {
     ctx.save()
     ctx.translate(x, y)
     ctx.rotate(entry.body.angle)
+
+    const grad = ctx.createRadialGradient(-rx * 0.35, -ry * 0.55, 0.5, 0, 0, rx * 1.35)
+    grad.addColorStop(0, '#6f4e37')
+    grad.addColorStop(0.45, '#3a2718')
+    grad.addColorStop(1, '#1f130c')
     ctx.beginPath()
-    ctx.ellipse(0, 0, bw / 2, bh / 2, 0, 0, Math.PI * 2)
-    ctx.fillStyle = '#2b1d14'
+    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2)
+    ctx.fillStyle = grad
     ctx.fill()
-    ctx.beginPath()
-    ctx.moveTo(-bw / 2 + 2, 0)
-    ctx.quadraticCurveTo(0, bh * 0.3, bw / 2 - 2, 0)
-    ctx.strokeStyle = '#8b5e3c'
-    ctx.lineWidth = 1.5
+    ctx.lineWidth = 1
+    ctx.strokeStyle = '#1a100a'
     ctx.stroke()
+
+    // Centre crease.
+    ctx.beginPath()
+    ctx.moveTo(-rx + 2.5, -0.4)
+    ctx.quadraticCurveTo(0, ry * 0.75, rx - 2.5, -0.4)
+    ctx.strokeStyle = 'rgba(18, 11, 7, 0.85)'
+    ctx.lineWidth = 1.4
+    ctx.stroke()
+
+    // Specular dot, upper-right.
+    ctx.beginPath()
+    ctx.ellipse(-rx * 0.28, -ry * 0.42, 1.6, 1.1, -0.4, 0, Math.PI * 2)
+    ctx.fillStyle = 'rgba(246, 226, 190, 0.5)'
+    ctx.fill()
+
     ctx.restore()
   }
 
