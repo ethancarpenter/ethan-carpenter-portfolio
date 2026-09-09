@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 
+import type { ElementSize } from '../../hooks/useElementSize.ts'
 import { BeanBowl } from '../objects/BeanBowl.tsx'
 import { Carafe, CoffeeMachine } from '../objects/CoffeeMachine.tsx'
 import { Grinder } from '../objects/Grinder.tsx'
@@ -9,6 +10,8 @@ import styles from './layers.module.css'
 interface ObjectsLayerProps {
   className: string
   layout: SceneLayout
+  /** Live scene-box pixel size — feeds the grinder's collider-aligned funnel art. */
+  sceneSize: ElementSize
   /** True while the grinder should be shaking (a bean is being ground). */
   grinderReacting?: boolean
   /** Bumped when a bean hits the grinder while the filter is full / moving. */
@@ -32,6 +35,7 @@ function anchorStyle(anchor: SceneAnchor): CSSProperties {
 export function ObjectsLayer({
   className,
   layout,
+  sceneSize,
   grinderReacting,
   grinderBusyTick,
   brewed,
@@ -47,6 +51,9 @@ export function ObjectsLayer({
       <BeanBowl style={anchorStyle(layout.beanBowl)} />
       <Grinder
         style={anchorStyle(layout.grinder)}
+        grinderAnchor={layout.grinder}
+        hopperAnchor={layout.grinderHopper}
+        sceneSize={sceneSize}
         reacting={grinderReacting}
         busyTick={grinderBusyTick}
       />

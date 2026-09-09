@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import { useElementSize } from '../hooks/useElementSize.ts'
 import { useMediaQuery } from '../hooks/useMediaQuery.ts'
 import { useReducedMotion } from '../hooks/useReducedMotion.ts'
 import { BrewLayer } from './brew/BrewLayer.tsx'
@@ -30,8 +31,8 @@ import styles from './CafeScene.module.css'
  * state machine consumes it, and the layers render off that state. Nothing in
  * `CafePhysics` knows about grinding, sound, or the filter.
  *
- * The scene is decorative for assistive tech (role="img"); everything needed to
- * use the site lives outside it.
+ * The scene is a labelled group for assistive tech; the decorative sub-layers
+ * are aria-hidden and everything needed to use the site lives outside it.
  */
 export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: ThrowResult) => void } = {}) {
   const isMobile = useMediaQuery(SCENE_MOBILE_QUERY)
@@ -39,6 +40,9 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
   const reducedMotion = useReducedMotion()
   const brew = useBrew()
   const brewCounter = useBrewCounter(brew.stage)
+  // Live scene-box size, shared with the art so the drawn grinder funnel stays
+  // on its Matter.js colliders (which measure the same box) at every size.
+  const [sceneRef, sceneSize] = useElementSize<HTMLDivElement>()
 
   const handleResolved = useCallback(
     (result: ThrowResult) => {
@@ -52,6 +56,7 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
 
   return (
     <div
+      ref={sceneRef}
       className={styles.scene}
       data-scene
       role="group"
@@ -61,6 +66,7 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
       <ObjectsLayer
         className={`${styles.layer} ${styles.layerObjects}`}
         layout={layout}
+        sceneSize={sceneSize}
         grinderReacting={brew.reacting}
         grinderBusyTick={brew.busyTick}
         brewed={brew.stage === 'installed'}

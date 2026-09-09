@@ -257,7 +257,8 @@
 
 .grinderBody {
   position: absolute;
-  inset: 34% 12% 0 12%;
+  /* Sits below the funnel mouth so the drawn catch wings read as the target. */
+  inset: 46% 12% 0 12%;
   background: linear-gradient(180deg, var(--c-coffee-600), var(--c-coffee-800));
   border: 3px solid var(--c-coffee-900);
   border-radius: var(--radius-sm) var(--radius-sm) 6px 6px;
@@ -283,28 +284,54 @@
   border-radius: 50%;
 }
 
-/* The hopper: an obvious open funnel at the top — the throw target. */
-.grinderHopper {
+/*
+ * The funnel: a full-scene overlay whose children are positioned from
+ * resolveGrinderGeometry() in scene pixels — the SAME function that builds the
+ * Matter catch-lip bodies and the top-entry gate. So the drawn catch wings and
+ * the mouth sit exactly on their colliders at every size. Never shaken.
+ */
+.grinderFunnel {
   position: absolute;
-  inset: 0 24% auto 24%;
-  height: 40%;
-  background: linear-gradient(180deg, var(--c-coffee-700), var(--c-coffee-900));
-  border: 3px solid var(--c-coffee-900);
-  clip-path: polygon(0 0, 100% 0, 72% 100%, 28% 100%);
+  inset: 0;
+  pointer-events: none;
 }
 
-.grinderHopperMouth {
+/* Dark throat from the mouth span down into the mill body. */
+.grinderThroat {
   position: absolute;
-  inset: -3px 18% auto 18%;
-  height: 12px;
-  background: var(--c-espresso);
-  border: 3px solid var(--c-coffee-900);
-  border-radius: 50%;
+  left: var(--throat-cx);
+  top: var(--throat-top);
+  width: var(--throat-w);
+  height: calc(var(--throat-bottom) - var(--throat-top));
+  translate: -50% 0;
+  background: linear-gradient(180deg, var(--c-espresso), var(--c-coffee-900));
+  border-inline: 3px solid var(--c-coffee-900);
+  clip-path: polygon(0 0, 100% 0, 66% 100%, 34% 100%);
+}
+
+/* One angled catch wing. left/top/width/height/rotate come inline from the
+   shared geometry; this is only the look. */
+.grinderCatch {
+  position: absolute;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, var(--c-coffee-500), var(--c-coffee-700));
+  border: 2px solid var(--c-coffee-900);
+  border-radius: 1px;
+}
+
+/* The up-facing catch surface gets a warm highlight so the funnel reads as a
+   lip the bean slides off, not a flat bar. */
+.grinderCatch::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 45%;
+  background: rgba(246, 200, 116, 0.28);
 }
 
 .grinderCrank {
   position: absolute;
-  top: 8%;
+  top: 50%;
   left: 68%;
   width: 34%;
   height: 5px;

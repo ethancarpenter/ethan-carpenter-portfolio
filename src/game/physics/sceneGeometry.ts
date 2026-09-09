@@ -6,6 +6,7 @@
  * drift away from the drawn scene.
  */
 
+import { resolveGrinderGeometry } from './grinderGeometry.ts'
 import type { PhysicsConfig } from './physicsConfig.ts'
 import type { SceneLayout } from '../sceneConfig.ts'
 
@@ -61,8 +62,6 @@ export interface SceneGeometry {
   cleanup: { minX: number; maxX: number; maxY: number }
 }
 
-const DEG = Math.PI / 180
-
 export function resolveSceneGeometry(
   layout: SceneLayout,
   size: Size,
@@ -74,8 +73,14 @@ export function resolveSceneGeometry(
 
   const hopper = layout.grinderHopper
   const hopperWidthPx = (hopper.width / 100) * w
-  const hopperCx = ((hopper.x + hopper.width / 2) / 100) * w
-  const hopperMouthY = (hopper.y / 100) * h
+
+  // The grinder funnel — mouth span + the two angled catch lips — comes from
+  // one shared pure helper, so the Matter bodies below and the drawn <Grinder>
+  // wings are the same shape at every size.
+  const grinder = resolveGrinderGeometry(hopper, size, cfg.funnel, cfg.sensor.entranceWidthScale)
+  const hopperCx = grinder.mouth.cx
+  const hopperMouthY = grinder.mouth.y
+
   const sensorW = hopperWidthPx * cfg.sensor.widthScale
   const sensorH = cfg.sensor.heightPct * h
   const sensorDrop = sensorH * cfg.sensor.dropFrac
@@ -87,11 +92,10 @@ export function resolveSceneGeometry(
   }
 
   // The top-entry gate: a plane on the mouth line, as wide as the drawn opening.
-  const entranceHalf = (hopperWidthPx * cfg.sensor.entranceWidthScale) / 2
   const hopperEntrance: HopperEntrance = {
-    y: hopperMouthY,
-    minX: hopperCx - entranceHalf,
-    maxX: hopperCx + entranceHalf,
+    y: grinder.mouth.y,
+    minX: grinder.mouth.cx - grinder.mouth.halfWidth,
+    maxX: grinder.mouth.cx + grinder.mouth.halfWidth,
   }
 
   const segments: StaticSegment[] = [
@@ -145,37 +149,22 @@ export function resolveSceneGeometry(
 
   // Two angled lips whose inner ends meet the entrance-gate edges exactly and
   // rise outward from there. A shot into the mouth passes between them; an
-  // obvious side shot hits solid lip and glances off onto the counter. Same
-  // `grinderHopper` geometry as the gate, so the physical and visual openings
-  // line up.
-  const lipLen = hopperWidthPx * cfg.funnel.lengthScale
-  const lipAngle = cfg.funnel.angleDeg * DEG
-  const lipHalfDx = Math.cos(lipAngle) * (lipLen / 2)
-  const lipHalfDy = Math.sin(lipAngle) * (lipLen / 2)
-  segments.push(
-    {
-      id: 'funnel-left',
-      cx: hopperEntrance.minX - lipHalfDx,
-      cy: hopperMouthY - lipHalfDy,
-      width: lipLen,
-      height: cfg.funnel.thickness,
-      angle: lipAngle,
+  // obvious side shot hits solid lip and glances off onto the counter. Shape
+  // comes from the shared helper (same as the drawn wings); only the material
+  // properties are physics-only.
+  for (const lip of grinder.lips) {
+    segments.push({
+      id: lip.id,
+      cx: lip.cx,
+      cy: lip.cy,
+      width: lip.length,
+      height: lip.thickness,
+      angle: lip.angle,
       restitution: cfg.funnel.restitution,
       friction: cfg.funnel.friction,
       frictionStatic: cfg.funnel.frictionStatic,
-    },
-    {
-      id: 'funnel-right',
-      cx: hopperEntrance.maxX + lipHalfDx,
-      cy: hopperMouthY - lipHalfDy,
-      width: lipLen,
-      height: cfg.funnel.thickness,
-      angle: -lipAngle,
-      restitution: cfg.funnel.restitution,
-      friction: cfg.funnel.friction,
-      frictionStatic: cfg.funnel.frictionStatic,
-    },
-  )
+    })
+  }
 
   const bowl = layout.beanBowl
   const spawn = {
