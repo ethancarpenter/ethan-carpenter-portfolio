@@ -13,11 +13,36 @@ export function CoffeeMachine({ style }: { style: CSSProperties }) {
   )
 }
 
-export function Carafe({ style }: { style: CSSProperties }) {
+interface CarafeProps {
+  style: CSSProperties
+  /**
+   * True once a filter has been installed (`stage === 'installed'`). Drives the
+   * coffee filling the glass and the steam afterward; back to false the instant
+   * the pot is reset, which empties the glass again. Pure presentation — the
+   * global counter already incremented at the `installed` transition.
+   */
+  brewed?: boolean
+  reducedMotion?: boolean
+}
+
+export function Carafe({ style, brewed, reducedMotion }: CarafeProps) {
   return (
-    <div className={`${styles.object} ${styles.carafe}`} style={style} data-object="carafe">
+    <div
+      className={`${styles.object} ${styles.carafe}`}
+      style={style}
+      data-object="carafe"
+      data-brewed={brewed ? 'true' : undefined}
+      data-reduced={reducedMotion ? 'true' : undefined}
+    >
+      <div className={styles.carafeSteam} aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <div className={styles.carafeLid} />
-      <div className={styles.carafeGlass} />
+      <div className={styles.carafeGlass}>
+        <div className={styles.carafeCoffee} />
+      </div>
       <div className={styles.carafeHandle} />
     </div>
   )

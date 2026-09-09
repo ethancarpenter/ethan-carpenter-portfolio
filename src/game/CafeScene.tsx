@@ -54,8 +54,8 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
     <div
       className={styles.scene}
       data-scene
-      role="img"
-      aria-label="A cozy pixel-art cafe counter with a bean bowl, a coffee grinder, and a coffee machine."
+      role="group"
+      aria-label="A cozy pixel-art cafe counter with a bean bowl, a coffee grinder, and a coffee machine. Optional toy; the portfolio does not depend on it."
     >
       <BackgroundLayer className={`${styles.layer} ${styles.layerBackground}`} />
       <ObjectsLayer
@@ -63,6 +63,8 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
         layout={layout}
         grinderReacting={brew.reacting}
         grinderBusyTick={brew.busyTick}
+        brewed={brew.stage === 'installed'}
+        reducedMotion={reducedMotion}
       />
       <PhysicsLayer
         className={`${styles.layer} ${styles.layerPhysics}`}
@@ -85,6 +87,7 @@ export function CafeScene({ onThrowResolved }: { onThrowResolved?: (result: Thro
         started={started}
         busyTick={brew.busyTick}
         brewCounter={brewCounter}
+        onResetPot={brew.resetPot}
       />
     </div>
   )

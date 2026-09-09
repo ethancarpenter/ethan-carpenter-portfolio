@@ -149,6 +149,43 @@ test('reset clears everything but keeps the configured target', () => {
   assert.equal(s.stage, 'filling')
 })
 
+test('empty pot: reset from installed returns a fully fresh, brewable cycle', () => {
+  // Brew and install one full pot.
+  const installed = run(
+    createBrewState(cfg),
+    { type: 'accept', units: 4 },
+    { type: 'accept', units: 4 },
+    { type: 'accept', units: 4 },
+    { type: 'grind-cycle' },
+    { type: 'carry-start' },
+    { type: 'carry-install' },
+  )
+  assert.equal(installed.stage, 'installed')
+
+  // The reset control fires this. The pot empties and the flow is back to start.
+  const emptied = brewReducer(installed, { type: 'reset' })
+  assert.equal(emptied.stage, 'filling')
+  assert.equal(emptied.phase, 'idle')
+  assert.equal(emptied.grounds, 0)
+  assert.equal(emptied.queued, 0)
+  assert.equal(emptied.dispenseTick, 0, 'dispense/particle counters are fresh too')
+  assert.equal(emptied.busyTick, 0)
+  assert.equal(isAcceptingBeans(emptied), true, 'the grinder takes beans again')
+
+  // A second pot brews and installs normally after the reset.
+  const secondPot = run(
+    emptied,
+    { type: 'accept', units: 4 },
+    { type: 'accept', units: 4 },
+    { type: 'accept', units: 4 },
+    { type: 'grind-cycle' },
+    { type: 'carry-start' },
+    { type: 'carry-install' },
+  )
+  assert.equal(secondPot.stage, 'installed')
+  assert.equal(fillRatio(secondPot), 1)
+})
+
 test('classification is deterministic — identical actions, identical state', () => {
   const actions: BrewAction[] = [
     { type: 'accept', units: 3 },

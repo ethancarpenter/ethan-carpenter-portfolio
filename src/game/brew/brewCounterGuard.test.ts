@@ -44,3 +44,34 @@ test('a canceled carry (back to ready) never counts', () => {
   const results = feed(['ready', 'carrying', 'ready', 'carrying', 'ready'])
   assert.ok(results.every((r) => r === false))
 })
+
+test('empty-pot reset then re-brew: exactly one count per completed pot', () => {
+  // The real stage stream once the Empty Pot control exists: install a pot,
+  // reset (installed -> filling), then brew and install a second pot. Strict
+  // Mode / rerender repeats of 'installed' are interleaved to prove the dedup
+  // still holds around the reset.
+  const results = feed([
+    'filling',
+    'ready',
+    'carrying',
+    'installed',
+    'installed', // rerender
+    'filling', // <- reset control fired
+    'ready',
+    'carrying',
+    'installed',
+    'installed', // rerender
+  ])
+  assert.deepEqual(results, [
+    false,
+    false,
+    false,
+    true, // first pot
+    false,
+    false,
+    false,
+    false,
+    true, // second pot, after the reset re-armed the guard
+    false,
+  ])
+})

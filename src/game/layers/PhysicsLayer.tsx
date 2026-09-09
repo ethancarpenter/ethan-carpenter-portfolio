@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { isPhysicsDebugEnabled, shouldColliderOverlayStartOn } from '../debug/debugFlag.ts'
 import { PhysicsDebugPanel } from '../debug/PhysicsDebugPanel.tsx'
 import { CafePhysics } from '../physics/cafePhysics.ts'
 import type { PhysicsDebugState, ThrowResult } from '../physics/types.ts'
@@ -47,6 +48,7 @@ export function PhysicsLayer({
   latest.current = { autoCollapse, onThrowResolved, onThrowRejected, layout }
 
   const [debugState, setDebugState] = useState<PhysicsDebugState | null>(null)
+  const debugEnabled = isPhysicsDebugEnabled()
 
   useEffect(() => {
     const host = hostRef.current
@@ -61,7 +63,7 @@ export function PhysicsLayer({
       onFirstInteraction: () => latest.current.autoCollapse(),
       onThrowResolved: (result) => latest.current.onThrowResolved?.(result),
       onThrowRejected: () => latest.current.onThrowRejected?.(),
-      onDebugState: import.meta.env.DEV ? setDebugState : undefined,
+      onDebugState: debugEnabled ? setDebugState : undefined,
     })
     engineRef.current = engine
 
@@ -69,7 +71,7 @@ export function PhysicsLayer({
       engine.destroy()
       engineRef.current = null
     }
-  }, [reducedMotion])
+  }, [reducedMotion, debugEnabled])
 
   useEffect(() => {
     engineRef.current?.setLayout(layout)
@@ -82,9 +84,10 @@ export function PhysicsLayer({
   return (
     <div ref={hostRef} className={className} data-layer="physics" aria-hidden="true">
       <canvas ref={canvasRef} className={styles.canvas} data-pixel />
-      {import.meta.env.DEV && debugState && (
+      {debugEnabled && debugState && (
         <PhysicsDebugPanel
           state={debugState}
+          initialColliders={shouldColliderOverlayStartOn()}
           onToggleColliders={(on) => engineRef.current?.setDebug(on)}
         />
       )}

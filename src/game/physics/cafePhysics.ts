@@ -33,6 +33,7 @@ import type { SceneGeometry, Size } from './sceneGeometry.ts'
 import { clampAnchorToBounds, clampSpeed, separationCorrection } from './tether.ts'
 import { ThrowTracker } from './throwTracker.ts'
 import type { BeanState, PhysicsDebugState, ThrowResult, ThrowTelemetry, Vec } from './types.ts'
+import { shouldColliderOverlayStartOn } from '../debug/debugFlag.ts'
 import type { SceneLayout } from '../sceneConfig.ts'
 import { toThrowResult } from '../scoring/throwScoring.ts'
 
@@ -122,7 +123,9 @@ export class CafePhysics {
   private debugTimer: number | null = null
   private debugFrame = 0
   private firstInteractionDone = false
-  private debugDraw = false
+  /** Collision overlay. Starts on only for an explicit `?debug` URL; the dev
+   *  panel's checkbox is the other way in. */
+  private debugDraw = shouldColliderOverlayStartOn()
   private destroyed = false
 
   /** When false, a bean at the hopper is bounced back out instead of consumed. */
@@ -883,22 +886,39 @@ export class CafePhysics {
   }
 
   private drawDebug(ctx: CanvasRenderingContext2D): void {
+    // Solid static geometry — floor, scene bounds, the two angled catch lips.
+    // Filled so a "visible surface vs collision surface" mismatch is obvious,
+    // and each one is labelled with its id.
     for (const seg of this.geometry.segments) {
       ctx.save()
       ctx.translate(seg.cx, seg.cy)
       ctx.rotate(seg.angle)
-      ctx.strokeStyle = 'rgba(120, 160, 255, 0.7)'
-      ctx.lineWidth = 1
+      ctx.fillStyle = 'rgba(120, 160, 255, 0.16)'
+      ctx.strokeStyle = 'rgba(120, 160, 255, 0.85)'
+      ctx.lineWidth = 1.5
+      ctx.fillRect(-seg.width / 2, -seg.height / 2, seg.width, seg.height)
       ctx.strokeRect(-seg.width / 2, -seg.height / 2, seg.width, seg.height)
       ctx.restore()
+
+      // Label just outside the segment, kept on-screen.
+      const { width: vw, height: vh } = this.geometry.size
+      const lx = Math.min(Math.max(seg.cx, 26), vw - 4)
+      const ly = Math.min(Math.max(seg.cy - seg.height / 2 - 3, 9), vh - 3)
+      ctx.fillStyle = 'rgba(150, 185, 255, 0.95)'
+      ctx.font = '9px monospace'
+      ctx.fillText(seg.id, lx - 24, ly)
     }
     // Secondary Matter sensor volume (dashed — no longer the acceptance test).
     const s = this.geometry.sensor
     ctx.save()
     ctx.setLineDash([4, 4])
-    ctx.strokeStyle = 'rgba(90, 220, 120, 0.55)'
+    ctx.strokeStyle = 'rgba(90, 220, 120, 0.6)'
     ctx.lineWidth = 1
     ctx.strokeRect(s.cx - s.width / 2, s.cy - s.height / 2, s.width, s.height)
+    ctx.setLineDash([])
+    ctx.fillStyle = 'rgba(90, 220, 120, 0.8)'
+    ctx.font = '9px monospace'
+    ctx.fillText('hopper-sensor', s.cx - s.width / 2, s.cy + s.height / 2 + 10)
     ctx.restore()
 
     // THE acceptance line: a bean must cross this, downward, between the caps.
@@ -939,11 +959,25 @@ export class CafePhysics {
       : 'top-entry gate'
     ctx.fillText(entryNote, e.minX, e.y - 26)
 
-    // Velocity vectors (amber) + swept prev->current segments (magenta).
+    // Per bean: the REAL collision polygon (Matter body vertices, lime) so it
+    // can be compared to the drawn sprite; the velocity vector (amber); and the
+    // swept prev->current segment the top-entry check runs on (magenta).
     for (const entry of this.beans.values()) {
       if (entry.state === 'consumed') continue
       const { x, y } = entry.body.position
       const v = entry.body.velocity
+
+      const verts = entry.body.vertices
+      if (verts.length) {
+        ctx.strokeStyle = 'rgba(150, 240, 120, 0.95)'
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(verts[0].x, verts[0].y)
+        for (let i = 1; i < verts.length; i += 1) ctx.lineTo(verts[i].x, verts[i].y)
+        ctx.closePath()
+        ctx.stroke()
+      }
+
       ctx.strokeStyle = 'rgba(233, 163, 61, 0.9)'
       ctx.lineWidth = 1
       ctx.beginPath()
@@ -976,6 +1010,35 @@ export class CafePhysics {
       ctx.arc(anchor.x, anchor.y, 3, 0, Math.PI * 2)
       ctx.fill()
     }
+
+    this.drawDebugLegend(ctx)
+  }
+
+  /** Compact colour key, pinned to the scene's top-left. */
+  private drawDebugLegend(ctx: CanvasRenderingContext2D): void {
+    const rows: Array<[string, string]> = [
+      ['rgba(120, 160, 255, 0.85)', 'static: floor / walls / ceiling / catch lips'],
+      ['rgba(90, 220, 120, 0.6)', 'hopper sensor (backstop only)'],
+      ['rgba(90, 210, 255, 0.95)', 'top-entry gate (THE accept test)'],
+      ['rgba(150, 240, 120, 0.95)', 'bean collision polygon'],
+      ['rgba(233, 163, 61, 0.9)', 'bean velocity'],
+      ['rgba(255, 90, 200, 0.9)', 'bean swept path (this step)'],
+    ]
+    ctx.save()
+    ctx.font = '9px monospace'
+    ctx.textBaseline = 'middle'
+    const x = 8
+    let y = 12
+    ctx.fillStyle = 'rgba(20, 12, 8, 0.72)'
+    ctx.fillRect(x - 4, y - 8, 250, rows.length * 12 + 8)
+    for (const [colour, label] of rows) {
+      ctx.fillStyle = colour
+      ctx.fillRect(x, y - 3, 10, 6)
+      ctx.fillStyle = 'rgba(244, 233, 216, 0.95)'
+      ctx.fillText(label, x + 16, y)
+      y += 12
+    }
+    ctx.restore()
   }
 
   private emitDebug = (): void => {

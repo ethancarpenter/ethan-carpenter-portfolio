@@ -359,9 +359,33 @@
 .carafeGlass {
   position: absolute;
   inset: 18% 6% 6% 6%;
-  background: linear-gradient(180deg, rgba(43, 29, 20, 0.25), var(--c-coffee-800) 60%);
+  /* Faint glass tint only — the coffee itself is the child fill so it can be
+     clipped to the glass shape rather than painted on as a flat background. */
+  background: linear-gradient(180deg, rgba(244, 233, 216, 0.14), rgba(43, 29, 20, 0.12));
   border: 3px solid var(--c-coffee-900);
   border-radius: 4px 4px 10px 10px;
+  overflow: hidden;
+}
+
+/* The coffee level. Height is the only thing that animates; `overflow:hidden`
+   on the glass keeps it inside the carafe shape (never spills past the edges). */
+.carafeCoffee {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 0;
+  background: linear-gradient(180deg, var(--c-coffee-600), var(--c-coffee-800) 55%, var(--c-espresso));
+  border-top: 2px solid rgba(246, 200, 116, 0.35);
+  transition: height 2600ms var(--ease-out);
+}
+
+.carafe[data-brewed='true'] .carafeCoffee {
+  height: 82%;
+}
+
+/* Reset (or reduced motion) snaps the level instead of animating it. */
+.carafe[data-reduced='true'] .carafeCoffee,
+.carafe:not([data-brewed='true']) .carafeCoffee {
+  transition-duration: 0ms;
 }
 
 .carafeLid {
@@ -381,4 +405,66 @@
   border: 3px solid var(--c-coffee-900);
   border-left: none;
   border-radius: 0 8px 8px 0;
+}
+
+/* Steam: three wisps that fade in only after the pour has mostly finished, and
+   only when motion is allowed. Cheap: CSS keyframes, no library, no JS timer. */
+.carafeSteam {
+  position: absolute;
+  left: 50%;
+  top: -14%;
+  translate: -50% 0;
+  width: 46%;
+  height: 26%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.carafeSteam span {
+  position: absolute;
+  bottom: 0;
+  width: 22%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(244, 233, 216, 0.55), transparent 78%);
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.carafeSteam span:nth-child(1) { left: 8%; }
+.carafeSteam span:nth-child(2) { left: 40%; height: 118%; }
+.carafeSteam span:nth-child(3) { left: 70%; }
+
+/* Brewed + motion allowed: steam fades in after the pour, wisps rise on a loop. */
+@media (prefers-reduced-motion: no-preference) {
+  .carafe[data-brewed='true']:not([data-reduced='true']) .carafeSteam {
+    animation: carafeSteamIn 900ms var(--ease-out) 2400ms forwards;
+  }
+
+  .carafe[data-brewed='true']:not([data-reduced='true']) .carafeSteam span {
+    animation: carafeSteamRise 2800ms ease-in-out 2400ms infinite;
+  }
+
+  .carafe[data-brewed='true']:not([data-reduced='true']) .carafeSteam span:nth-child(2) {
+    animation-delay: 3000ms;
+  }
+
+  .carafe[data-brewed='true']:not([data-reduced='true']) .carafeSteam span:nth-child(3) {
+    animation-delay: 3600ms;
+  }
+}
+
+/* Reduced motion: the coffee is already in the pot, so just show a faint
+   static wisp once brewed — no rising loop, no fade-in delay. */
+.carafe[data-brewed='true'][data-reduced='true'] .carafeSteam {
+  opacity: 0.45;
+}
+
+@keyframes carafeSteamIn {
+  to { opacity: 0.85; }
+}
+
+@keyframes carafeSteamRise {
+  0% { transform: translateY(6%) scaleY(0.9); opacity: 0.15; }
+  40% { opacity: 0.6; }
+  100% { transform: translateY(-40%) scaleY(1.15); opacity: 0; }
 }

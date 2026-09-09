@@ -17,6 +17,12 @@ interface SceneUiLayerProps {
   busyTick: number
   /** The global pots-brewed total (Milestone 5), or its loading/unavailable state. */
   brewCounter: BrewCounterState
+  /**
+   * Empty the brewed pot and start a fresh brew cycle. Local only — never
+   * touches the global counter. The control below is shown only while
+   * `stage === 'installed'`.
+   */
+  onResetPot: () => void
 }
 
 const COUNT_FORMATTER = new Intl.NumberFormat('en-US')
@@ -34,8 +40,9 @@ export function SceneUiLayer({
   started,
   busyTick,
   brewCounter,
+  onResetPot,
 }: SceneUiLayerProps) {
-  const { grinderHopper } = layout
+  const { grinderHopper, carafe } = layout
 
   // Anchor the hint just above the hopper opening.
   const hintStyle: CSSProperties = {
@@ -52,6 +59,11 @@ export function SceneUiLayer({
   }, [busyTick])
 
   const hint = resolveHint(stage, started, busyCue)
+
+  const resetStyle: CSSProperties = {
+    left: `${carafe.x + carafe.width / 2}%`,
+    top: `${carafe.y + 3}%`,
+  }
 
   return (
     <div className={className}>
@@ -73,6 +85,21 @@ export function SceneUiLayer({
         <p className={styles.hint} style={hintStyle} data-tone={hint.tone}>
           <span aria-hidden="true">{hint.icon}</span> {hint.text}
         </p>
+      )}
+
+      {stage === 'installed' && (
+        <button
+          type="button"
+          className={styles.resetPot}
+          style={resetStyle}
+          onClick={onResetPot}
+          aria-label="Empty pot and start a new brew"
+        >
+          <span aria-hidden="true" className={styles.resetPotIcon}>
+            ↺
+          </span>
+          <span className={styles.resetPotText}>Empty pot</span>
+        </button>
       )}
     </div>
   )

@@ -13,6 +13,10 @@ interface ObjectsLayerProps {
   grinderReacting?: boolean
   /** Bumped when a bean hits the grinder while the filter is full / moving. */
   grinderBusyTick?: number
+  /** True once a filter is installed — the carafe fills with coffee. */
+  brewed?: boolean
+  /** Honour the reduced-motion preference for the carafe fill / steam. */
+  reducedMotion?: boolean
 }
 
 /** Turn a percentage anchor from sceneConfig into absolute-position styles. */
@@ -30,6 +34,8 @@ export function ObjectsLayer({
   layout,
   grinderReacting,
   grinderBusyTick,
+  brewed,
+  reducedMotion,
 }: ObjectsLayerProps) {
   return (
     <div
@@ -45,7 +51,7 @@ export function ObjectsLayer({
         busyTick={grinderBusyTick}
       />
       <CoffeeMachine style={anchorStyle(layout.coffeeMachine)} />
-      <Carafe style={anchorStyle(layout.carafe)} />
+      <Carafe style={anchorStyle(layout.carafe)} brewed={brewed} reducedMotion={reducedMotion} />
     </div>
   )
 }

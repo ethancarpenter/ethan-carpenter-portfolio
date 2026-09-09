@@ -83,8 +83,68 @@
   50% { transform: translateY(-4px); }
 }
 
+/* Empty / reset pot control — only mounted while a filter is installed. Sits
+   just under the carafe on the counter. Local action only: it never affects the
+   global counter. */
+.resetPot {
+  position: absolute;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* WCAG 2.5.5: keep the hit area >= 44px even though the visible chrome is
+     smaller. */
+  min-height: 44px;
+  padding: 6px 12px;
+  font-family: var(--font-pixel);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-cream);
+  background: rgba(36, 22, 16, 0.86);
+  border: 2px solid var(--c-coffee-900);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pixel-sm);
+  cursor: pointer;
+}
+
+.resetPot:hover {
+  background: var(--c-coffee-700);
+}
+
+.resetPot:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.resetPotIcon {
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.resetPotText {
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resetPot {
+    animation: resetPotIn 200ms var(--ease-out);
+  }
+}
+
+@keyframes resetPotIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 @media (max-width: 720px) {
   .hint {
     bottom: 12%;
+  }
+
+  .resetPot {
+    font-size: 0.6875rem;
   }
 }

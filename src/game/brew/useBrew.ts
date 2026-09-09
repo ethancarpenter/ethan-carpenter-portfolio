@@ -49,6 +49,15 @@ export interface BrewApi {
   beginCarry: () => void
   cancelCarry: () => void
   installFilter: () => void
+  /**
+   * Empty the brewed pot and return the whole grind -> fill -> carry -> install
+   * flow to its starting state so another pot can be brewed. Purely local: it
+   * never touches the global counter (no decrement, no API call) and never
+   * re-triggers the completed-pot guard — leaving `'installed'` simply re-arms
+   * it for the next legitimate brew. Wired to the in-scene reset control, which
+   * only appears once `stage === 'installed'`.
+   */
+  resetPot: () => void
 }
 
 export function useBrew(cfg: BrewConfig = BREW): BrewApi {
@@ -121,6 +130,7 @@ export function useBrew(cfg: BrewConfig = BREW): BrewApi {
   const beginCarry = useCallback(() => dispatch({ type: 'carry-start' }), [])
   const cancelCarry = useCallback(() => dispatch({ type: 'carry-cancel' }), [])
   const installFilter = useCallback(() => dispatch({ type: 'carry-install' }), [])
+  const resetPot = useCallback(() => dispatch({ type: 'reset' }), [])
 
   return useMemo(
     () => ({
@@ -139,7 +149,17 @@ export function useBrew(cfg: BrewConfig = BREW): BrewApi {
       beginCarry,
       cancelCarry,
       installFilter,
+      resetPot,
     }),
-    [state, reacting, handleThrow, handleRejectedBean, beginCarry, cancelCarry, installFilter],
+    [
+      state,
+      reacting,
+      handleThrow,
+      handleRejectedBean,
+      beginCarry,
+      cancelCarry,
+      installFilter,
+      resetPot,
+    ],
   )
 }

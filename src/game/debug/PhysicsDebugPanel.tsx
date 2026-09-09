@@ -5,6 +5,8 @@ import styles from './PhysicsDebugPanel.module.css'
 
 interface PhysicsDebugPanelProps {
   state: PhysicsDebugState
+  /** Initial state of the "show colliders" checkbox (true when `?debug` is set). */
+  initialColliders?: boolean
   onToggleColliders: (on: boolean) => void
 }
 
@@ -13,9 +15,13 @@ interface PhysicsDebugPanelProps {
  * `import.meta.env.DEV` check, fixed to the viewport corner so it never covers
  * the bean-to-grinder play area. Not production UI.
  */
-export function PhysicsDebugPanel({ state, onToggleColliders }: PhysicsDebugPanelProps) {
+export function PhysicsDebugPanel({
+  state,
+  initialColliders = false,
+  onToggleColliders,
+}: PhysicsDebugPanelProps) {
   const [open, setOpen] = useState(true)
-  const [colliders, setColliders] = useState(false)
+  const [colliders, setColliders] = useState(initialColliders)
   const t = state.lastThrow?.telemetry
 
   return (
