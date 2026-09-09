@@ -7,8 +7,9 @@
  * Responsibilities:
  *  - build static geometry from the shared scene config (walls, funnel, gate)
  *  - spawn beans and keep one grabbable "ready" bean at the bowl
- *  - a spring-tether grab: the pointer is an anchor, the bean swings around it;
- *    a still pointer lets the bean settle onto the anchor (no gravity while held)
+ *  - a spring-tether grab: the pointer is an anchor, the bean hangs and swings
+ *    below it like a pendulum (normal weight while held) and keeps its momentum
+ *    on release
  *  - swept top-entry detection -> telemetry -> pure classification -> callback
  *  - stay aligned with the visible scene on resize / breakpoint change
  *  - tear everything down cleanly (React Strict Mode double-mounts this)
@@ -132,16 +133,6 @@ export class CafePhysics {
   private acceptingBeans = true
   /** `performance.now()` of the last deflection cue; rate-limits `onThrowRejected`. */
   private lastDeflectCueAt = Number.NEGATIVE_INFINITY
-
-  // --- pointer-idle tether settling ---
-  /** Smoothed pointer speed, px/s. Drives the moving <-> idle tether blend. */
-  private pointerSpeedEma = 0
-  private lastPointerMoveAt = Number.NEGATIVE_INFINITY
-  private lastPointerSamplePos: Vec = { x: 0, y: 0 }
-  private tetherIdle = false
-  private tetherIdleSince = -1
-  /** Live (blended) constraint params, mirrored for the debug readout. */
-  private liveTether = { length: 0, stiffness: 0, damping: 0 }
 
   /** Most recent top-entry test result, for the debug overlay. */
   private lastEntryResult: EntryResult | null = null
@@ -371,14 +362,10 @@ export class CafePhysics {
 
   /**
    * The grab is a single Matter spring constraint from a moving world point
-   * (the pointer anchor) to the bean's centre.
-   *
-   * While the pointer MOVES the spring is long and soft: the bean lags, orbits,
-   * and builds the tangential momentum the player flings. While the pointer is
-   * IDLE (see {@link onBeforeUpdate}) the rest length collapses toward zero and
-   * stiffness/damping rise, so the bean glides onto the anchor and rests there
-   * instead of hanging below it. The held bean also carries no gravity — normal
-   * weight resumes the instant it is released, with no velocity discontinuity.
+   * (the pointer anchor) to the bean's centre: a short, swingy tether rather
+   * than a rigid rope. The bean lags, orbits and builds the tangential momentum
+   * the player flings; it keeps its normal weight so it hangs and swings below
+   * the cursor like a pendulum. The spring params are fixed for the whole grab.
    */
   private attachGrab(entry: BeanEntry, anchor: Vec): void {
     const { tether } = this.cfg
@@ -393,18 +380,6 @@ export class CafePhysics {
     this.grabConstraint = constraint
     Composite.add(this.world, constraint)
     setGravityScale(entry.body, tether.heldGravityScale)
-
-    // Start in the "moving" mode; only settle after a real dwell of stillness.
-    this.tetherIdle = false
-    this.tetherIdleSince = -1
-    this.pointerSpeedEma = tether.idleReleaseThreshold + 1
-    this.lastPointerMoveAt = performance.now()
-    this.lastPointerSamplePos = { x: anchor.x, y: anchor.y }
-    this.liveTether = {
-      length: tether.length,
-      stiffness: tether.stiffness,
-      damping: tether.damping,
-    }
   }
 
   /** Always paired with ending a grab — never leave a dangling constraint. */
@@ -481,18 +456,6 @@ export class CafePhysics {
     if (this.destroyed || this.heldId == null || e.pointerId !== this.activePointerId) return
     const world = this.toWorld(e)
     const now = performance.now()
-
-    const dt = now - this.lastPointerMoveAt
-    if (dt > 0 && dt < 200) {
-      const d = Math.hypot(
-        world.x - this.lastPointerSamplePos.x,
-        world.y - this.lastPointerSamplePos.y,
-      )
-      const inst = (d / dt) * 1000
-      this.pointerSpeedEma = this.pointerSpeedEma * 0.5 + inst * 0.5
-    }
-    this.lastPointerMoveAt = now
-    this.lastPointerSamplePos = world
 
     this.pointerWorld = world
     this.trackers.get(this.heldId)?.addPointerSample(world, now)
@@ -580,9 +543,6 @@ export class CafePhysics {
       return
     }
 
-    const now = performance.now()
-    this.updateTetherMode(now)
-
     // Move the spring anchor to the (bounds-clamped) pointer. No Body.setPosition
     // pin — Matter simulates the bean swinging toward the anchor.
     const anchor = clampAnchorToBounds(
@@ -606,41 +566,6 @@ export class CafePhysics {
         y: entry.body.velocity.y * 0.5,
       })
     }
-  }
-
-  /**
-   * Blend the live spring params between the "moving" and "idle" presets. The
-   * pointer is idle once its smoothed speed has stayed under `idleSpeedThreshold`
-   * for `idleDelayMs`; it snaps back to moving the moment speed crosses
-   * `idleReleaseThreshold` (hysteresis stops pointer jitter from flip-flopping).
-   * The blend is a per-frame lerp, so the transition is continuous — the bean is
-   * never teleported onto the cursor.
-   */
-  private updateTetherMode(now: number): void {
-    if (!this.grabConstraint) return
-    const t = this.cfg.tether
-
-    // A still pointer fires no pointermove events — decay the estimate toward 0.
-    if (now - this.lastPointerMoveAt > 40) this.pointerSpeedEma *= 0.8
-
-    if (this.pointerSpeedEma <= t.idleSpeedThreshold) {
-      if (this.tetherIdleSince < 0) this.tetherIdleSince = now
-      if (now - this.tetherIdleSince >= t.idleDelayMs) this.tetherIdle = true
-    } else if (this.pointerSpeedEma >= t.idleReleaseThreshold) {
-      this.tetherIdleSince = -1
-      this.tetherIdle = false
-    }
-
-    const target = this.tetherIdle
-      ? { length: t.idleLength, stiffness: t.idleStiffness, damping: t.idleDamping }
-      : { length: t.length, stiffness: t.stiffness, damping: t.damping }
-
-    const c = this.grabConstraint
-    const k = t.idleBlend
-    c.length += (target.length - c.length) * k
-    c.stiffness += (target.stiffness - c.stiffness) * k
-    c.damping += (target.damping - c.damping) * k
-    this.liveTether = { length: c.length, stiffness: c.stiffness, damping: c.damping }
   }
 
   private onAfterUpdate = (): void => {
@@ -1049,6 +974,7 @@ export class CafePhysics {
     const heldBeanVelocity = held
       ? { x: held.body.velocity.x * STEP_HZ, y: held.body.velocity.y * STEP_HZ }
       : { x: 0, y: 0 }
+    const heldTracker = this.heldId != null ? this.trackers.get(this.heldId) : undefined
 
     this.opts.onDebugState({
       lastThrow: this.lastThrow,
@@ -1056,20 +982,16 @@ export class CafePhysics {
       dragging: this.heldId != null,
       heldBeanSpeed: Math.hypot(heldBeanVelocity.x, heldBeanVelocity.y),
       heldBeanVelocity,
-      pointerSpeed: this.heldId != null ? this.pointerSpeedEma : 0,
-      pointerIdle: this.tetherIdle,
+      pointerSpeed: heldTracker ? heldTracker.pointerSpeed() : 0,
       beanAnchorDistance:
         held && anchor
           ? Math.hypot(held.body.position.x - anchor.x, held.body.position.y - anchor.y)
           : 0,
-      tether:
-        this.heldId != null
-          ? { ...this.liveTether }
-          : {
-              length: this.cfg.tether.length,
-              stiffness: this.cfg.tether.stiffness,
-              damping: this.cfg.tether.damping,
-            },
+      tether: {
+        length: this.cfg.tether.length,
+        stiffness: this.cfg.tether.stiffness,
+        damping: this.cfg.tether.damping,
+      },
     })
   }
 }

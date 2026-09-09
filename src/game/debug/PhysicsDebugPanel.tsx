@@ -45,7 +45,6 @@ export function PhysicsDebugPanel({
             value={`${state.heldBeanVelocity.x.toFixed(0)}, ${state.heldBeanVelocity.y.toFixed(0)}`}
           />
           <Row label="pointer speed" value={`${state.pointerSpeed.toFixed(0)} px/s`} />
-          <Row label="tether mode" value={state.pointerIdle ? 'idle (settling)' : 'moving'} />
           <Row label="bean↔anchor" value={`${state.beanAnchorDistance.toFixed(0)} px`} />
           <Row label="tether len" value={state.tether.length.toFixed(1)} />
           <Row label="stiffness" value={state.tether.stiffness.toFixed(3)} />

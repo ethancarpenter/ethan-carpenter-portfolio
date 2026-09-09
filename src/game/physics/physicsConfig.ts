@@ -59,14 +59,14 @@ export interface PhysicsConfig {
   }
   tether: {
     /**
-     * Spring rest length between the pointer anchor and the bean centre while
-     * the pointer is MOVING, px. Short — enough to swing around the cursor,
-     * not so much that it feels detached.
+     * Spring rest length between the pointer anchor and the bean centre, px.
+     * Keep this SHORT — enough that the bean can visibly swing around the
+     * cursor, not so much that it feels detached.
      */
     length: number
-    /** Matter constraint stiffness while moving, 0..1. Low = a soft, swingy spring. */
+    /** Matter constraint stiffness, 0..1. Low = a soft, swingy spring. */
     stiffness: number
-    /** Matter constraint damping while moving, 0..1. Bleeds off oscillation. */
+    /** Matter constraint damping, 0..1. Bleeds off oscillation. */
     damping: number
     /**
      * Hard safety cap: the bean is never allowed farther than this from the
@@ -74,25 +74,11 @@ export interface PhysicsConfig {
      */
     maxSeparation: number
     /**
-     * Gravity multiplier applied to the bean while it is held. 0 makes the held
-     * bean weightless so it settles ONTO the anchor instead of hanging below it;
-     * normal weight resumes the instant it is released.
+     * Gravity multiplier applied to the bean while it is tethered. 1 keeps
+     * normal weight (it hangs and swings like a pendulum); lower makes it
+     * ride closer to the cursor.
      */
     heldGravityScale: number
-    /** Spring rest length once the pointer has been idle — pulls the bean onto the anchor. */
-    idleLength: number
-    /** Constraint stiffness once idle — firmer, so the bean converges. */
-    idleStiffness: number
-    /** Constraint damping once idle — high, so it settles without oscillating. */
-    idleDamping: number
-    /** Pointer speed (px/s) at or below which the pointer counts as idle. */
-    idleSpeedThreshold: number
-    /** Pointer speed (px/s) that snaps straight back to the moving feel (hysteresis). */
-    idleReleaseThreshold: number
-    /** How long the pointer must stay slow before the tether switches to idle, ms. */
-    idleDelayMs: number
-    /** Per-frame blend (0..1) of the live constraint params toward the target mode. */
-    idleBlend: number
   }
   bounce: {
     /** Minimum impact speed (px/s) for a collision to count as a bounce. */
@@ -198,18 +184,11 @@ export const PHYSICS: PhysicsConfig = {
     maxSpin: 0.9,
   },
   tether: {
-    length: 12,
-    stiffness: 0.05,
-    damping: 0.09,
+    length: 14,
+    stiffness: 0.035,
+    damping: 0.08,
     maxSeparation: 90,
-    heldGravityScale: 0,
-    idleLength: 0.5,
-    idleStiffness: 0.2,
-    idleDamping: 0.55,
-    idleSpeedThreshold: 45,
-    idleReleaseThreshold: 95,
-    idleDelayMs: 120,
-    idleBlend: 0.16,
+    heldGravityScale: 1,
   },
   bounce: {
     minSpeed: 130,
