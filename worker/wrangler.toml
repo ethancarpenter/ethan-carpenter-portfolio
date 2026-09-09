@@ -6,15 +6,31 @@ name = "ethancarpenter-brew-counter"
 main = "src/index.ts"
 compatibility_date = "2024-11-01"
 
+# --- Production routing ------------------------------------------------
+# Same-origin: the Vite site is served from ethancarpenter.dev (Cloudflare
+# Pages) and only /api/* is peeled off to this Worker. A Worker route takes
+# precedence over Pages for matching paths, so no CORS is ever involved.
+# The client calls the relative path /api/brews (src/game/brew/brewApi.ts),
+# never an absolute URL.
+routes = [
+  { pattern = "ethancarpenter.dev/api/*", zone_name = "ethancarpenter.dev" },
+]
+
+# The Worker is reachable ONLY through the route above. No *.workers.dev URL
+# and no preview URLs in production (Cloudflare also disables workers.dev by
+# default once a route is set; these lines make that explicit and silence the
+# deploy warnings).
+workers_dev = false
+preview_urls = false
+
 # --- D1: the persistent global counter ---------------------------------
 [[d1_databases]]
 binding = "DB"
 database_name = "ethancarpenter-brews"
-# Placeholder. Local dev (`npm run worker:dev` / `npm run db:migrate:local`)
-# works with this placeholder in place — Wrangler's local D1 simulation
-# doesn't validate it. Deploying or running any `--remote` command needs the
-# real id from `wrangler d1 create ethancarpenter-brews`; see README.
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+# Production database, created 2026-09-09 via `wrangler d1 create
+# ethancarpenter-brews` (region ENAM). Binding stays "DB" (what worker/src
+# references as env.DB) regardless of the snippet Cloudflare prints.
+database_id = "37560459-5d6a-4bfa-b4a6-33f45d850342"
 migrations_dir = "migrations"
 
 # --- Rate limiting: a few accepted POSTs per visitor per minute --------

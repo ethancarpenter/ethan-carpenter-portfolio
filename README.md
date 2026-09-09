@@ -336,16 +336,26 @@ brew counter and hint text.
 
 ## Milestone 7 deployment-readiness checklist
 
-- [ ] Manual browser pass: desktop/tablet/mobile widths, the full bean-toss →
-      grind → carry → install flow, keyboard-only navigation.
-- [ ] Cloudflare account step (see **Brew counter backend**): create the real
-      D1 database, set `database_id` in `worker/wrangler.toml`, run
-      `npm run db:migrate:remote`, `npm run worker:deploy`.
-- [ ] Point production at the Worker: a Cloudflare Route for
-      `ethancarpenter.dev/api/*` (same-origin, no CORS) is the setup this was
-      built for.
-- [ ] DNS / domain onto Cloudflare if not already, and the Pages/static-host
-      deploy for the Vite build itself.
+- [x] Manual browser pass: desktop/tablet/mobile widths, the full bean-toss →
+      grind → carry → install flow, keyboard-only navigation. Verified in-browser
+      by the site owner (2026-09-09); a final production smoke test still follows
+      deployment.
+- [x] Cloudflare account step: production D1 database `ethancarpenter-brews`
+      created (region ENAM), `database_id` set in `worker/wrangler.toml`,
+      `npm run db:migrate:remote` applied `0001_init.sql`, `npm run worker:deploy`
+      shipped `ethancarpenter-brew-counter` (2026-09-09).
+- [x] Production points at the Worker via the `ethancarpenter.dev/api/*` route
+      declared in `worker/wrangler.toml` (`workers_dev`/`preview_urls` disabled,
+      so the Worker is reachable only through that same-origin route, no CORS).
+      Verified in prod: `GET`/`POST /api/brews` work, D1 persists, `/api/*` 404s
+      correctly.
+- [x] DNS / domain: `ethancarpenter.dev` zone active on Cloudflare, Vite build
+      deployed to Cloudflare Pages project `ethan-carpenter-portfolio`, apex
+      attached as a Pages custom domain, `www` → apex via a 301 Redirect Rule
+      (proxied `AAAA www 100::`). HTTPS + HTTP→HTTPS verified (2026-09-09).
+- [ ] Final live production smoke test: bean-toss → grind → carry → install
+      flow in a real browser against `https://ethancarpenter.dev`, confirming the
+      on-page brew counter increments live.
 - [ ] Optional: a real `og:image`/`twitter:image` social-preview asset.
 - [ ] Optional: `IDENTITY.github` and per-project `github`/`demo` links, once
       the projects are public.
