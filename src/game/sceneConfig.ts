@@ -59,18 +59,20 @@ export const desktopLayout: SceneLayout = {
 }
 
 /**
- * Mobile: grinder moves toward centre and lower, bean bowl sits closer so the
- * throw distance is shorter, machine tucks to the edge. Decorations thin out
- * via CSS, not here.
+ * Mobile (portrait scene). The physics anchors — `grinderHopper`, `beanBowl`,
+ * `counterTopY` — are unchanged from the values playtested on touch; only the
+ * art-and-drag anchors move, to give the wider mobile funnel room and stack the
+ * machine + carafe low on the right, clear of the catch wings. Decorations thin
+ * out via CSS, not here. `.machine` also shortens on mobile (layers.module.css).
  */
 export const mobileLayout: SceneLayout = {
   beanBowl: { x: 8, y: 62, width: 30 },
-  grinder: { x: 52, y: 40, width: 30 },
+  grinder: { x: 44, y: 45, width: 34 },
   grinderHopper: { x: 55, y: 35, width: 20 },
-  filterHome: { x: 54, y: 60, width: 22 },
-  machineSlot: { x: 74, y: 33, width: 22 },
-  coffeeMachine: { x: 68, y: 20, width: 34 },
-  carafe: { x: 74, y: 66, width: 22 },
+  filterHome: { x: 40, y: 58, width: 18 },
+  machineSlot: { x: 80, y: 56, width: 15 },
+  coffeeMachine: { x: 70, y: 48, width: 27 },
+  carafe: { x: 74, y: 66, width: 20 },
   counterTopY: 66,
 }
 

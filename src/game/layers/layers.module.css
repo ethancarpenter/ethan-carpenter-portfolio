@@ -731,3 +731,27 @@
   70% { opacity: 0.5; }
   100% { transform: translateY(-46%) scaleY(1.2); opacity: 0; }
 }
+
+/* ============================ Mobile (portrait) ============================ */
+/*
+ * The mobile scene is narrow and portrait and the catch-wing funnel is
+ * proportionally wide, so the machine has to be shorter and sit low-right,
+ * clear of the wings. The grinder assembly is lifted above the machine art so
+ * a wing can never be painted over (it's a gameplay target).
+ */
+@media (max-width: 720px) {
+  .machine {
+    aspect-ratio: 5 / 4;
+    translate: 0 -14%;
+  }
+
+  .grinderFunnel,
+  .grinder {
+    z-index: 2;
+  }
+
+  .grinderBody {
+    /* A touch chunkier so the mill still reads next to the big funnel. */
+    inset: 36% 8% 3% 8%;
+  }
+}

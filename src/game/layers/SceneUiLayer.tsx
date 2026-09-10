@@ -60,8 +60,11 @@ export function SceneUiLayer({
 
   const hint = resolveHint(stage, started, busyCue)
 
+  // Sit the reset control under the carafe, but clamp so the whole pill stays
+  // inside the scene box on a narrow layout (translate:-50% centres it on this).
+  const resetCx = Math.min(Math.max(carafe.x + carafe.width / 2, 24), 82)
   const resetStyle: CSSProperties = {
-    left: `${carafe.x + carafe.width / 2}%`,
+    left: `${resetCx}%`,
     top: `${carafe.y + 3}%`,
   }
 
