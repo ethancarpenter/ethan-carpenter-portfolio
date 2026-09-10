@@ -28,12 +28,26 @@
   touch-action: none;
   transition:
     left var(--brew-return, 320ms) var(--ease-out),
-    top var(--brew-return, 320ms) var(--ease-out);
+    top var(--brew-return, 320ms) var(--ease-out),
+    scale var(--brew-return, 320ms) var(--ease-out),
+    filter var(--brew-return, 320ms) var(--ease-out);
 }
 
 .basket[data-dragging='true'] {
   transition: none;
   z-index: 1;
+}
+
+/* Once seated in the machine it's "installed" — shrink and settle it into the
+   group head so it stops competing with the carafe and the counter for
+   attention. */
+.basket[data-stage='installed'] {
+  scale: 0.66;
+  filter: brightness(0.8) saturate(0.85);
+}
+
+.basket[data-stage='installed'] .count {
+  opacity: 0;
 }
 
 .basket[data-stage='ready'],

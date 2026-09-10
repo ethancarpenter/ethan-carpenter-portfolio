@@ -235,12 +235,13 @@
   box-shadow: -3px 4px 0 0 rgba(43, 29, 20, 0.3);
 }
 
-/* The hollow: a dark opening the beans nestle in. */
+/* A slim dark gap at the back of the bowl the beans spill from — not a big
+   pit; the beans are the point. */
 .beanBowlDish::before {
   content: '';
   position: absolute;
-  inset: -6% 15% 62% 15%;
-  background: radial-gradient(100% 130% at 50% 100%, var(--c-espresso), var(--c-coffee-800));
+  inset: 8% 22% 66% 22%;
+  background: radial-gradient(120% 150% at 50% 100%, var(--c-espresso), var(--c-coffee-800));
   border: 3px solid var(--c-coffee-900);
   border-radius: 50%;
 }
@@ -249,26 +250,30 @@
 .beanBowlDish::after {
   content: '';
   position: absolute;
-  inset: -2% 16% auto 46%;
+  inset: 2% 18% auto 48%;
   height: 3px;
   background: rgba(246, 200, 116, 0.5);
   border-radius: 50%;
 }
 
-/* A small heap of beans sitting proud of the rim — tilted ovals with a
-   lighter crease highlight. */
+/* A rounded heap of coffee beans mounded above the rim. */
 .beanPile {
   position: absolute;
-  inset: -6% 20% 46% 20%;
+  inset: -16% 8% 30% 8%;
   background:
-    radial-gradient(6px 3px at 26% 72%, var(--c-coffee-600) 40%, transparent 44%),
-    radial-gradient(8px 5px at 24% 76%, var(--c-espresso) 62%, transparent 66%),
-    radial-gradient(6px 3px at 54% 58%, var(--c-coffee-500) 40%, transparent 44%),
-    radial-gradient(8px 5px at 52% 62%, var(--c-coffee-900) 62%, transparent 66%),
-    radial-gradient(6px 3px at 76% 74%, var(--c-coffee-600) 40%, transparent 44%),
-    radial-gradient(8px 5px at 78% 78%, var(--c-espresso) 62%, transparent 66%),
-    radial-gradient(7px 4px at 40% 42%, var(--c-coffee-900) 60%, transparent 64%),
-    radial-gradient(7px 4px at 62% 40%, var(--c-espresso) 60%, transparent 64%);
+    radial-gradient(9px 6px at 18% 78%, var(--c-coffee-600) 44%, transparent 48%),
+    radial-gradient(11px 7px at 16% 82%, var(--c-espresso) 64%, transparent 68%),
+    radial-gradient(9px 6px at 40% 66%, var(--c-coffee-500) 44%, transparent 48%),
+    radial-gradient(11px 7px at 38% 70%, var(--c-coffee-900) 64%, transparent 68%),
+    radial-gradient(9px 6px at 62% 70%, var(--c-coffee-600) 44%, transparent 48%),
+    radial-gradient(11px 7px at 64% 74%, var(--c-espresso) 64%, transparent 68%),
+    radial-gradient(9px 6px at 84% 76%, var(--c-coffee-500) 44%, transparent 48%),
+    radial-gradient(11px 7px at 86% 80%, var(--c-coffee-900) 64%, transparent 68%),
+    radial-gradient(10px 7px at 30% 48%, var(--c-coffee-900) 62%, transparent 66%),
+    radial-gradient(10px 7px at 52% 44%, var(--c-espresso) 62%, transparent 66%),
+    radial-gradient(10px 7px at 72% 50%, var(--c-coffee-800) 62%, transparent 66%),
+    radial-gradient(10px 7px at 42% 28%, var(--c-espresso) 60%, transparent 64%),
+    radial-gradient(10px 7px at 60% 26%, var(--c-coffee-900) 60%, transparent 64%);
 }
 
 /* ---- Grinder (the throw target) ---- */
@@ -452,14 +457,14 @@
    a jaunty angle and spins around the hub while grinding. */
 .grinderCrank {
   position: absolute;
-  top: 41%;
-  left: 84%;
-  width: 26%;
+  top: 56%;
+  left: 88%;
+  width: 22%;
   height: 5px;
   background: var(--c-coffee-900);
   border-radius: 3px;
   transform-origin: left center;
-  transform: rotate(-36deg);
+  transform: rotate(-18deg);
 }
 
 .grinderCrank::before {
@@ -502,15 +507,15 @@
   background:
     linear-gradient(
       90deg,
-      rgba(43, 29, 20, 0.38) 0 7%,
-      transparent 20% 80%,
-      rgba(43, 29, 20, 0.42) 93% 100%
+      rgba(43, 29, 20, 0.22) 0 6%,
+      transparent 18% 82%,
+      rgba(43, 29, 20, 0.26) 94% 100%
     ),
-    linear-gradient(180deg, var(--c-coffee-500), var(--c-coffee-700) 58%, var(--c-coffee-800));
+    linear-gradient(180deg, var(--c-coffee-400), var(--c-coffee-500) 52%, var(--c-coffee-700));
   border: 3px solid var(--c-coffee-900);
   border-radius: 7px 7px 3px 3px;
   box-shadow:
-    inset 0 4px 0 -1px rgba(255, 240, 214, 0.16),
+    inset 0 4px 0 -1px rgba(255, 240, 214, 0.2),
     -3px 5px 0 0 rgba(43, 29, 20, 0.3);
 }
 
@@ -606,9 +611,8 @@
   position: absolute;
   inset: auto 0 0 0;
   height: 0;
-  background: linear-gradient(180deg, var(--c-coffee-500), var(--c-coffee-700) 45%, var(--c-espresso));
-  box-shadow: inset 0 3px 0 0 rgba(246, 200, 116, 0.4);
-  transition: height 2600ms var(--ease-out);
+  background: linear-gradient(180deg, #4b3421, #2b1d14 45%, #170e08);
+  transition: height 1700ms var(--ease-out);
 }
 
 /* Meniscus: a lighter surface line so the coffee reads as liquid. */
@@ -617,11 +621,11 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: rgba(246, 200, 116, 0.55);
+  background: rgba(246, 200, 116, 0.6);
 }
 
 .carafe[data-brewed='true'] .carafeCoffee {
-  height: 78%;
+  height: 84%;
 }
 
 /* Reset (or reduced motion) snaps the level instead of animating it. */
