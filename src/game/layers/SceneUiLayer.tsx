@@ -15,7 +15,7 @@ interface SceneUiLayerProps {
   started: boolean
   /** Bumped when a bean hits a grinder that can't use it. */
   busyTick: number
-  /** The global pots-brewed total (Milestone 5), or its loading/unavailable state. */
+  /** The global pots-brewed total, or its loading/unavailable state. */
   brewCounter: BrewCounterState
   /**
    * Empty the brewed pot and start a fresh brew cycle. Local only — never
@@ -29,9 +29,9 @@ const COUNT_FORMATTER = new Intl.NumberFormat('en-US')
 
 /**
  * In-scene HUD: the global brew-count slot (shared across every visitor — see
- * useBrewCounter.ts) and a single contextual hint. The abstract grinder
- * progress bar was removed in Milestone 3 — the grounds visibly filling the
- * paper filter are the progress indicator now.
+ * useBrewCounter.ts) and a single contextual hint. There is no abstract grinder
+ * progress bar — the grounds visibly filling the paper filter are the progress
+ * indicator.
  */
 export function SceneUiLayer({
   className,

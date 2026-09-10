@@ -8,7 +8,7 @@
 export interface BrewConfig {
   /**
    * Grounds needed to fill one paper filter. The core progression knob — the
-   * multipliers already produced by Milestone 2 add 1..4 grounds each (mostly
+   * throw multipliers add 1..4 grounds each (mostly
    * 2x/3x once thrown), so 30 is roughly 12-18 good throws.
    */
   groundsRequired: number

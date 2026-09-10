@@ -11,9 +11,9 @@ export const HERO_OVERLAY_QUERY = '(min-width: 901px)'
 /**
  * Shared control for the hero introduction panel.
  *
- * The panel collapses on a user click today. In Milestone 2 the bean-physics
- * code can call `autoCollapse()` when the first drag/toss begins — it only
- * needs this context, never the reverse, so the two stay decoupled.
+ * The panel collapses on a user click, and the bean-physics code calls
+ * `autoCollapse()` when the first drag/toss begins — it only needs this
+ * context, never the reverse, so the two stay decoupled.
  *
  * `autoCollapse()` is responsive-aware: it collapses only while the intro
  * overlays the scene (`overlapsScene`, i.e. desktop). Below 901px the intro

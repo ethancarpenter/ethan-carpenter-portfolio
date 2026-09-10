@@ -70,7 +70,7 @@ export interface CafePhysicsOptions {
   reducedMotion: boolean
   /** Fired once, on the first successful bean grab (wire to autoCollapse). */
   onFirstInteraction: () => void
-  /** Every accepted throw, already classified. The Milestone 3 seam. */
+  /** Every accepted throw, already classified. The brew-flow seam. */
   onThrowResolved?: (result: ThrowResult) => void
   /** A bean reached the grinder while it couldn't accept it (filter full / moving). */
   onThrowRejected?: () => void

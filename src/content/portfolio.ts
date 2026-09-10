@@ -1,4 +1,4 @@
-/** Portfolio content. Single edit point for the real thing: see README milestones. */
+/** Portfolio content. Single source of truth for everything the site renders. */
 
 export interface NavItem {
   id: string
@@ -23,16 +23,14 @@ export const IDENTITY = {
     'B.S. in Computer Science from UMass Amherst. I build full-stack projects, most notably a Dungeons & Dragons Campaign Manager application, and bring several years of professional leadership experience from managing teams at Target.',
   email: 'carpenter.ethan12@gmail.com',
   linkedin: 'https://www.linkedin.com/in/ethan-carpenter/',
-  // Left blank until you share the real link (the button only renders once
-  // a value is set, see the Contact section). The projects aren't public yet.
-  github: '',
+  github: 'https://github.com/ethancarpenter',
   resumeHref: '/resume.pdf',
 } as const
 
 export const ABOUT_PARAGRAPHS: readonly string[] = [
   "I'm a software developer with a B.S. in Computer Science from the University of Massachusetts Amherst. Alongside the degree, I build full-stack projects end to end (schema and API design through the interface someone actually uses) because I like understanding a system all the way down.",
   "Before and during that degree, I spent several years in retail leadership at Target, most recently as a General Merchandise Executive Team Leader after being promoted through multiple Team Leader roles. That work is where I built habits I now bring to software: tracing problems to their root cause instead of their symptoms, making decisions from data instead of assumptions, owning a process end to end, and communicating clearly across people who don't share your context. As a Food & Beverage Team Leader, I helped drive our fulfillment 'item not found' rate from 4.2% down to 1.8% year-over-year by fixing inventory accuracy, backstock, and item-location reliability: the same root-cause, systems-level thinking I apply to code.",
-  "Right now I'm actively building a Dungeons & Dragons Campaign Manager application and the Birthday Reminder App. This site is a project too: a pixel-art cafe where you can toss coffee beans into a grinder while you look around.",
+  "I built a Dungeons & Dragons Campaign Manager end to end (auth, relational data modeling, a REST API, and an interactive quest-dependency graph) and I'm currently building the Birthday Reminder App. This site is a project too: a pixel-art cafe where you can toss coffee beans into a grinder while you look around.",
 ]
 
 export interface Project {
@@ -52,15 +50,17 @@ export const PROJECTS: readonly Project[] = [
   {
     name: 'Dungeons & Dragons Campaign Manager',
     summary:
-      'A full-stack campaign management application inspired by tabletop RPG campaign planning: track campaigns, cities, and quests, and map how quests connect to each other on an interactive graph.',
-    tags: ['C#', 'ASP.NET Core', 'PostgreSQL', 'EF Core', 'React', 'Next.js', 'TypeScript'],
-    status: 'In development',
+      'A full-stack campaign manager for tabletop RPG prep: campaigns, cities, locations, NPCs, and quests, each scoped to the owning account, plus an interactive graph of how quests depend on each other.',
+    tags: ['C#', 'ASP.NET Core', 'EF Core', 'PostgreSQL', 'React', 'Next.js', 'TypeScript'],
+    status: 'Built out; not yet deployed',
     featured: true,
+    github: 'https://github.com/ethancarpenter/Big-If-True',
     highlights: [
-      'Campaign, city, and quest management with REST APIs and ownership/authorization rules',
-      'Interactive quest graph with persisted node positions',
-      'Quest relationships, including progression dependencies, validated with cycle-detection graph traversal',
-      'Automated backend and frontend testing',
+      'Cookie-based auth with CSRF protection; every query is scoped to the owning account',
+      'CRUD for campaigns, cities, locations, NPCs, and quests, with typed relationships between them',
+      'Interactive quest-dependency graph with cycle detection and persisted node positions',
+      'Command-palette global search across every entity type',
+      'Automated backend testing',
     ],
   },
   {

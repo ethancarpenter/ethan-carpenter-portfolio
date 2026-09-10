@@ -17,7 +17,7 @@ const SIZES = [
 /**
  * The exact formula the geometry used before it was extracted into
  * grinderGeometry.ts. If this drifts from `resolveGrinderGeometry`, a collider
- * moved — which Milestone 8 must not do without explicit sign-off.
+ * moved — a regression this test exists to catch.
  */
 function legacyLips(hopper: typeof desktopLayout.grinderHopper, w: number, h: number) {
   const hopperWidthPx = (hopper.width / 100) * w

@@ -1,4 +1,4 @@
-# Cloudflare Worker config for the global coffee-brew counter (Milestone 5).
+# Cloudflare Worker config for the global coffee-brew counter.
 # Run every `wrangler`/`npm run worker:*`/`npm run db:*` command from the repo
 # root — the npm scripts already point at this file with --config.
 

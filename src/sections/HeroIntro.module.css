@@ -2,8 +2,8 @@
  * The professional intro that layers over the pixel cafe.
  *
  * Pointer events: .slot (and its ancestor .hero) are transparent to input
- * (pointer-events: none), so the exposed play area — and, from Milestone 2, the
- * physics canvas underneath — always receives pointer and touch input. Every
+ * (pointer-events: none), so the exposed play area — and the physics canvas
+ * underneath — always receives pointer and touch input. Every
  * actually-visible element (.panel, .chip, the toggle buttons) explicitly opts
  * back in below. Nothing here leaves an invisible hit box over the scene.
  */

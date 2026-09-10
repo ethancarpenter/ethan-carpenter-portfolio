@@ -12,7 +12,7 @@ import styles from './PhysicsLayer.module.css'
 interface PhysicsLayerProps {
   className: string
   layout: SceneLayout
-  /** Milestone 3 seam: every accepted throw, already classified. */
+  /** The brew-flow seam: every accepted throw, already classified. */
   onThrowResolved?: (result: ThrowResult) => void
   /** A bean reached a grinder that can't accept it (filter full / being moved). */
   onThrowRejected?: () => void

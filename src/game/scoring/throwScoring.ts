@@ -1,7 +1,7 @@
 /**
  * Pure, deterministic throw classification. No Matter.js, no DOM, no clock —
  * everything it needs is in the telemetry it's handed, so it is trivially
- * unit-testable and safe to reuse from Milestone 3.
+ * unit-testable and safe to reuse from the brew flow.
  */
 
 import type { ScoringThresholds } from '../physics/physicsConfig.ts'

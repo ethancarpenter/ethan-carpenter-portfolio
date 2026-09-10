@@ -12,9 +12,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // The brew-counter Worker (Milestone 5). Run it separately with
-      // `npm run worker:dev` (defaults to :8787); the client only ever calls
-      // the relative /api/brews path, in dev and in production alike.
+      // The brew-counter Worker. Run it separately with `npm run worker:dev`
+      // (defaults to :8787); the client only ever calls the relative
+      // /api/brews path, in dev and in production alike.
       '/api': 'http://localhost:8787',
     },
   },

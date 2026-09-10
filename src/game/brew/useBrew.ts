@@ -4,7 +4,7 @@
  * confirmation chime, and exposes a small, stable API for the scene layers.
  *
  * The ThrowResult -> brew-state seam lives here: `handleThrow` consumes the
- * multiplier Milestone 2 already produced — it never re-scores a throw.
+ * multiplier the physics layer already produced — it never re-scores a throw.
  */
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
