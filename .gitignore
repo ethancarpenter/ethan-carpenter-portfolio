@@ -11,6 +11,12 @@ dist
 dist-ssr
 *.local
 
+# Environment / secrets — never commit a real one; checked-in *.example files are fine
+.env
+.env.*
+!.env.example
+!.env.*.example
+
 # Cloudflare Workers / Wrangler local state (D1 sqlite, cache) and local secrets
 .wrangler
 worker/.wrangler
