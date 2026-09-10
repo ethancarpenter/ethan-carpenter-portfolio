@@ -1,0 +1,187 @@
+<!doctype html>
+<!--
+  Source for public/resume.pdf. To regenerate the PDF (needs Chrome or Edge):
+
+    chrome --headless --disable-gpu --print-to-pdf="../public/resume.pdf" \
+      --no-pdf-header-footer --print-to-pdf-no-header resume.html
+
+  Keep this file and the PDF in sync.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ethan Carpenter — Resume</title>
+<style>
+  @page {
+    size: letter;
+    margin: 0.5in 0.6in;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Calibri", "Carlito", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.28;
+    color: #222;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1 {
+    margin: 0;
+    text-align: center;
+    font-family: "Georgia", "Cambria", serif;
+    font-size: 21pt;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  .contact {
+    margin: 3px 0 2px;
+    text-align: center;
+    font-size: 9.5pt;
+    color: #444;
+  }
+  .contact a { color: #1f4e79; text-decoration: none; }
+
+  .rule {
+    border: none;
+    border-top: 1px solid #bbb;
+    margin: 7px 0 10px;
+  }
+
+  h2 {
+    margin: 11px 0 4px;
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #1f4e79;
+    border-bottom: 1.2px solid #1f4e79;
+    padding-bottom: 2px;
+  }
+  h2:first-of-type { margin-top: 8px; }
+
+  p { margin: 3px 0; }
+
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 6px;
+  }
+  .entry-head .org { font-weight: 700; }
+  .entry-head .org .place { font-weight: 400; font-style: italic; color: #333; }
+  .entry-head .dates { font-size: 9.5pt; font-style: italic; color: #555; white-space: nowrap; padding-left: 12px; }
+
+  .title { font-weight: 700; margin: 1px 0 2px; }
+
+  .project-head { margin-top: 7px; }
+  .project-head .name { font-weight: 700; }
+  .project-head .tech { font-size: 9pt; font-style: italic; color: #555; }
+
+  ul { margin: 2px 0 2px; padding-left: 18px; }
+  li { margin: 1.5px 0; }
+
+  .skills p { margin: 2px 0; }
+  .skills .label { font-weight: 700; }
+</style>
+</head>
+<body>
+
+  <h1>ETHAN CARPENTER</h1>
+  <p class="contact"><a href="https://www.linkedin.com/in/ethan-carpenter/">linkedin.com/in/ethan-carpenter</a></p>
+  <hr class="rule" />
+
+  <h2>Professional Summary</h2>
+  <p>
+    Computer Science graduate and full-stack developer with hands-on experience building
+    applications using C#, .NET, PostgreSQL, React, and TypeScript. Experienced people leader
+    bringing several years of management, problem-solving, collaboration, and ownership to a
+    transition into professional software engineering.
+  </p>
+
+  <h2>Projects</h2>
+
+  <p class="project-head">
+    <span class="name">Dungeons &amp; Dragons Campaign Manager</span>
+    <span class="tech">| C# &middot; .NET &middot; ASP.NET Core &middot; EF Core &middot; PostgreSQL &middot; React &middot; Git</span>
+  </p>
+  <ul>
+    <li>Built a full-stack campaign management application with RESTful APIs, relational data
+      modeling, cookie-based authentication, and per-account data-ownership enforcement.</li>
+    <li>Implemented quest relationships and BFS cycle detection for progression rules, persistent
+      graph positioning, command-palette global search, and an automated backend test suite with
+      200+ passing tests.</li>
+  </ul>
+
+  <p class="project-head">
+    <span class="name">Notifetti &mdash; Birthday Reminder Application</span>
+    <span class="tech">| React &middot; TypeScript &middot; Vite &middot; Supabase &middot; PostgreSQL &middot; Git</span>
+  </p>
+  <ul>
+    <li>Developing a full-stack reminder application with authentication, protected routes,
+      profile/settings management, and user-specific data access using PostgreSQL Row Level
+      Security.</li>
+    <li>Designed email/SMS contact preferences and an integration plan for Twilio-based
+      notifications while iterating through Git-based development and testing.</li>
+  </ul>
+
+  <h2>Professional Experience</h2>
+
+  <div class="entry-head">
+    <span class="org">Target <span class="place">&mdash; Westborough, MA</span></span>
+    <span class="dates">Aug 2026 &ndash; Present</span>
+  </div>
+  <p class="title">General Merchandise Executive Team Leader</p>
+  <ul>
+    <li>Lead daily execution across high-volume General Merchandise operations, setting
+      priorities, allocating labor, and resolving time-sensitive issues as business conditions
+      change.</li>
+    <li>Coach and develop team members while partnering across functions to communicate
+      expectations, troubleshoot operational problems, and deliver against deadlines.</li>
+    <li>Use performance metrics, observation, and root-cause problem solving to identify gaps,
+      improve processes, and drive accountability for results.</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="org">Target <span class="place">&mdash; Marlborough, MA</span></span>
+    <span class="dates">Jun 2025 &ndash; Aug 2026</span>
+  </div>
+  <p class="title">Food &amp; Beverage Team Leader</p>
+  <ul>
+    <li>Led 12+ team members across a food operation generating approximately $180K in weekly
+      sales, balancing staffing, workload, inventory accuracy, freshness, and guest
+      experience.</li>
+  </ul>
+
+  <div class="entry-head">
+    <span class="org">Target <span class="place">&mdash; Marlborough, MA</span></span>
+    <span class="dates">Jul 2023 &ndash; Jun 2025</span>
+  </div>
+  <p class="title">Service &amp; Engagement Team Leader</p>
+  <ul>
+    <li>Led front-end and digital fulfillment operations; maintained district-leading drive-up
+      wait-time performance, served as a district trainer, and independently managed staffing,
+      scheduling, and performance priorities.</li>
+  </ul>
+
+  <h2>Technical Skills</h2>
+  <div class="skills">
+    <p><span class="label">Languages:</span> C#, TypeScript, JavaScript, Python, Java, C, C++</p>
+    <p><span class="label">Frameworks &amp; Backend:</span> .NET, ASP.NET Core, Entity Framework Core, React, REST APIs</p>
+    <p><span class="label">Data &amp; Tools:</span> PostgreSQL, Supabase, Git, GitHub, automated testing, CI/CD fundamentals</p>
+  </div>
+
+  <h2>Education</h2>
+  <p>
+    <strong>University of Massachusetts Amherst</strong> &nbsp;|&nbsp; <em>Amherst, MA</em><br />
+    Bachelor of Science in Computer Science &nbsp;|&nbsp; GPA: 3.4/4.0 &nbsp;|&nbsp; Graduated January 2023
+  </p>
+
+</body>
+</html>
