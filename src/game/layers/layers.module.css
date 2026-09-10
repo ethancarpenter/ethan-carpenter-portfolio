@@ -219,28 +219,28 @@
 
 /* ---- Bean bowl ---- */
 .beanBowl {
-  aspect-ratio: 5 / 3;
-  translate: 0 -58%;
+  aspect-ratio: 9 / 5;
+  translate: 0 -54%;
 }
 
-/* Glazed ceramic dish: a shallow bowl seen slightly from above. */
+/* Glazed ceramic dish — compact, a little deeper than wide-open. */
 .beanBowlDish {
   position: absolute;
-  inset: 30% 2% 4% 2%;
+  inset: 34% 16% 3% 16%;
   background:
     radial-gradient(120% 150% at 72% 8%, rgba(246, 200, 116, 0.35), transparent 55%),
     linear-gradient(180deg, var(--c-cream-300), var(--c-coffee-400) 78%, var(--c-coffee-500));
   border: 3px solid var(--c-coffee-900);
-  border-radius: 12% 12% 46% 46% / 30% 30% 100% 100%;
+  border-radius: 14% 14% 46% 46% / 34% 34% 100% 100%;
   box-shadow: -3px 4px 0 0 rgba(43, 29, 20, 0.3);
 }
 
-/* The hollow: a dark elliptical opening the beans nestle in. */
+/* The hollow: a dark opening the beans nestle in. */
 .beanBowlDish::before {
   content: '';
   position: absolute;
-  inset: -8% 8% 55% 8%;
-  background: radial-gradient(100% 120% at 50% 100%, var(--c-espresso), var(--c-coffee-800));
+  inset: -6% 15% 62% 15%;
+  background: radial-gradient(100% 130% at 50% 100%, var(--c-espresso), var(--c-coffee-800));
   border: 3px solid var(--c-coffee-900);
   border-radius: 50%;
 }
@@ -249,27 +249,26 @@
 .beanBowlDish::after {
   content: '';
   position: absolute;
-  inset: -3% 12% auto 40%;
-  height: 4px;
+  inset: -2% 16% auto 46%;
+  height: 3px;
   background: rgba(246, 200, 116, 0.5);
   border-radius: 50%;
 }
 
-/* A heaped mound of beans sitting proud of the rim. Each bean is a small tilted
-   oval with a lighter crease highlight. */
+/* A small heap of beans sitting proud of the rim — tilted ovals with a
+   lighter crease highlight. */
 .beanPile {
   position: absolute;
-  inset: -12% 10% 40% 10%;
+  inset: -6% 20% 46% 20%;
   background:
-    radial-gradient(7px 4px at 24% 74%, var(--c-coffee-600) 40%, transparent 44%),
-    radial-gradient(9px 6px at 22% 78%, var(--c-espresso) 62%, transparent 66%),
-    radial-gradient(7px 4px at 52% 60%, var(--c-coffee-500) 40%, transparent 44%),
-    radial-gradient(9px 6px at 50% 64%, var(--c-coffee-900) 62%, transparent 66%),
-    radial-gradient(7px 4px at 76% 76%, var(--c-coffee-600) 40%, transparent 44%),
-    radial-gradient(9px 6px at 78% 80%, var(--c-espresso) 62%, transparent 66%),
-    radial-gradient(8px 5px at 37% 46%, var(--c-coffee-900) 60%, transparent 64%),
-    radial-gradient(8px 5px at 64% 44%, var(--c-espresso) 60%, transparent 64%),
-    radial-gradient(8px 5px at 50% 30%, var(--c-coffee-800) 60%, transparent 64%);
+    radial-gradient(6px 3px at 26% 72%, var(--c-coffee-600) 40%, transparent 44%),
+    radial-gradient(8px 5px at 24% 76%, var(--c-espresso) 62%, transparent 66%),
+    radial-gradient(6px 3px at 54% 58%, var(--c-coffee-500) 40%, transparent 44%),
+    radial-gradient(8px 5px at 52% 62%, var(--c-coffee-900) 62%, transparent 66%),
+    radial-gradient(6px 3px at 76% 74%, var(--c-coffee-600) 40%, transparent 44%),
+    radial-gradient(8px 5px at 78% 78%, var(--c-espresso) 62%, transparent 66%),
+    radial-gradient(7px 4px at 40% 42%, var(--c-coffee-900) 60%, transparent 64%),
+    radial-gradient(7px 4px at 62% 40%, var(--c-espresso) 60%, transparent 64%);
 }
 
 /* ---- Grinder (the throw target) ---- */
@@ -325,8 +324,9 @@
    band at the shoulder, a grounds drawer with a turned knob, two little feet. */
 .grinderBody {
   position: absolute;
-  /* Sits below the funnel mouth so the drawn catch wings read as the target. */
-  inset: 44% 10% 3% 10%;
+  /* Top rises just under the funnel mouth so the catch wings + throat seat
+     onto the mill rather than hovering over it. */
+  inset: 38% 10% 3% 10%;
   background:
     repeating-linear-gradient(
       90deg,
@@ -342,15 +342,16 @@
     -3px 5px 0 0 rgba(43, 29, 20, 0.3);
 }
 
-/* Metal collar where the throat meets the body. */
+/* Wide metal hopper collar at the shoulder — the wings and throat plug into
+   this, so the funnel reads as part of the mill. */
 .grinderBody::before {
   content: '';
   position: absolute;
-  inset: -3px -3px auto -3px;
-  height: 15%;
-  background: linear-gradient(180deg, #b9a07f, #6f5a41 60%, #4b3a29);
+  inset: -6px -8% auto -8%;
+  height: 26%;
+  background: linear-gradient(180deg, #c2a985, #8a7051 45%, #4b3a29);
   border: 3px solid var(--c-coffee-900);
-  border-radius: 3px 3px 0 0;
+  border-radius: 4px 4px 2px 2px;
 }
 
 /* Base plinth. */
@@ -400,7 +401,7 @@
   pointer-events: none;
 }
 
-/* Dark metal chute from the mouth span down into the mill body. */
+/* Dark metal hopper throat between the wings, funnelling down into the mill. */
 .grinderThroat {
   position: absolute;
   left: var(--throat-cx);
@@ -408,9 +409,9 @@
   width: var(--throat-w);
   height: calc(var(--throat-bottom) - var(--throat-top));
   translate: -50% 0;
-  background: linear-gradient(180deg, var(--c-espresso), var(--c-coffee-900));
+  background: linear-gradient(180deg, var(--c-coffee-800), var(--c-espresso) 55%, var(--c-coffee-900));
   border-inline: 3px solid var(--c-coffee-900);
-  clip-path: polygon(0 0, 100% 0, 66% 100%, 34% 100%);
+  clip-path: polygon(0 0, 100% 0, 82% 100%, 18% 100%);
 }
 
 /* A vertical sheen so the chute reads as curved metal, not a flat cut-out. */
@@ -451,40 +452,40 @@
    a jaunty angle and spins around the hub while grinding. */
 .grinderCrank {
   position: absolute;
-  top: 47%;
-  left: 88%;
-  width: 17%;
-  height: 4px;
+  top: 41%;
+  left: 84%;
+  width: 26%;
+  height: 5px;
   background: var(--c-coffee-900);
-  border-radius: 2px;
+  border-radius: 3px;
   transform-origin: left center;
-  transform: rotate(-34deg);
+  transform: rotate(-36deg);
 }
 
 .grinderCrank::before {
   content: '';
   position: absolute;
-  left: -4px;
+  left: -5px;
   top: 50%;
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   translate: -50% -50%;
-  background: radial-gradient(circle at 35% 30%, #b9a07f, var(--c-coffee-800));
-  border: 2px solid var(--c-coffee-900);
+  background: radial-gradient(circle at 35% 30%, #c2a985, var(--c-coffee-800));
+  border: 3px solid var(--c-coffee-900);
   border-radius: 50%;
 }
 
 .grinderCrank::after {
   content: '';
   position: absolute;
-  right: -3px;
+  right: -4px;
   top: 50%;
-  width: 8px;
-  height: 15px;
+  width: 10px;
+  height: 19px;
   translate: 50% -50%;
   background: linear-gradient(180deg, var(--c-wood-400), var(--c-coffee-700));
-  border: 2px solid var(--c-coffee-900);
-  border-radius: 3px;
+  border: 3px solid var(--c-coffee-900);
+  border-radius: 4px;
 }
 
 /* ---- Coffee machine + carafe ---- */
@@ -580,18 +581,20 @@
   translate: 0 -100%;
 }
 
-/* Glass carafe: straight sides, softly rounded base. */
+/* Glass carafe: straight sides, softly rounded base. The body is a mostly
+   opaque frosted fill so an EMPTY carafe reads as empty glass, not a window
+   onto the dark machine behind it; a diagonal streak keeps the glassy look. */
 .carafeGlass {
   position: absolute;
   inset: 16% 8% 4% 8%;
   background:
     linear-gradient(
-      105deg,
-      rgba(244, 233, 216, 0.24) 0 11%,
-      transparent 24% 74%,
-      rgba(43, 29, 20, 0.16) 89% 100%
+      108deg,
+      rgba(255, 255, 255, 0.4) 0 9%,
+      rgba(255, 255, 255, 0.06) 20% 70%,
+      rgba(43, 29, 20, 0.14) 88% 100%
     ),
-    linear-gradient(180deg, rgba(244, 233, 216, 0.12), rgba(43, 29, 20, 0.1));
+    linear-gradient(180deg, rgba(236, 226, 205, 0.8), rgba(214, 200, 174, 0.76));
   border: 3px solid var(--c-coffee-900);
   border-radius: 4px 4px 40% 40% / 4px 4px 24% 24%;
   overflow: hidden;

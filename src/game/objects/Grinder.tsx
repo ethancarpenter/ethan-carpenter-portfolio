@@ -69,10 +69,13 @@ export function Grinder({
           style={
             {
               '--throat-top': `${(geo.mouth.y / h) * 100}%`,
-              // Reach a little into the top of the mill body below.
-              '--throat-bottom': `${Math.max((geo.mouth.y / h) * 100 + 8, grinderAnchor.y)}%`,
+              // Reach well into the top of the mill body so the funnel and the
+              // mill read as one piece.
+              '--throat-bottom': `${Math.max((geo.mouth.y / h) * 100 + 11, grinderAnchor.y + 5)}%`,
               '--throat-cx': `${(geo.mouth.cx / w) * 100}%`,
-              '--throat-w': `${((geo.mouth.halfWidth * 2) / w) * 100}%`,
+              // A touch wider than the bare mouth span so the wings look seated
+              // on it rather than hovering above a slot.
+              '--throat-w': `${((geo.mouth.halfWidth * 2.2) / w) * 100}%`,
             } as CSSProperties
           }
         >
